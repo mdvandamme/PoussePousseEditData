@@ -43,6 +43,9 @@ class NearestFeatureMapTool(QgsMapTool):
         
     def setLayer(self, layer):
         self.layer = layer
+        
+    def setUrl(self, url):
+        self.url = url
     
         
     def canvasReleaseEvent(self, mouseEvent):
@@ -73,7 +76,8 @@ class NearestFeatureMapTool(QgsMapTool):
         self.table.scrollToBottom();
         
         # On enregistre dans le fichier
-        uriSL = os.path.join(os.path.dirname(__file__) + str('/../resources/feu/'),'stop_line.dat')
+        # uriSL = os.path.join(os.path.dirname(__file__) + str('/../resources/feu/'),'stop_line.dat')
+        uriSL = self.url
         with open(uriSL, 'a') as file:
             file.write(str(layerPoint.x()) + ',' + str(layerPoint.y()) + '\n')
         file.close()

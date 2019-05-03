@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/plugins/PoussePousseEditData" >
-        <file>img/logoPoussePousseEditData_04.png</file>
+        <file>img/logoPoussePousseEditData.png</file>
 		<file>img/CreateStopLine.png</file>
     </qresource>
 </RCC>
