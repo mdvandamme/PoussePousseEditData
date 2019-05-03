@@ -4,11 +4,21 @@
 Guide d’utilisation du logiciel 
 #################################
 
-Principe de base 
-==================
-
 Démarrage
 =============
 
-La grille doit être déjà créée et doit être carrée.
+* La grille doit être déjà créée, carrée et de type polygone. Le premier attribut doit contenir l'index (type entier) des cellules. 
 
+.. figure:: /img/CreationGrille.png
+   :width: 200px
+
+
+* Le fichier CSV doit aussi être créé. Le caractère séparateur est la virgule, la première ligne contient les entêtes des colonnes et les 2 premières colonnes contiennent les coordonnées des points.
+
+Principe de base 
+==================
+
+.. figure:: /img/parcours_grille.png
+   :width: 400px
+       
+   Figure 1 : parcours de la grille cellule après cellule
