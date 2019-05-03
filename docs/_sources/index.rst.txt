@@ -21,6 +21,8 @@ Une grille recouvre le jeu de données ce qui permet de saisir des objets ponctu
 
 Une fois la saisie terminée, une seconde saisie des objets géographiques sur un nombre aléatoire de cellule permet de contrôler la qualité de la saisie.
 
+`Aller sur le dépot Github <https://github.com/mdvandamme/PoussePousseEditData/>`_.
+
 
 Table des matières 
 **********************
