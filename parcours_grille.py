@@ -193,10 +193,12 @@ class ParcoursGrille:
                 # On active les boutons avec des evenements click
                 self.dockwidget.btSuiv.clicked.connect(self.doSuivant)
                 self.dockwidget.btGo.clicked.connect(self.goId)
-                self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
-                self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
                 self.dockwidget.btSynchronize.clicked.connect(self.synchronize)
                 self.dockwidget.btZoomGrille.clicked.connect(self.zoomEmprise)
+                self.dockwidget.btViderFichier.clicked.connect(self.raz)
+                
+                self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
+                self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
                 
         # show the dockwidget
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
@@ -243,6 +245,7 @@ class ParcoursGrille:
         
         self.goTo("0")
 
+        self.zoomEmprise()
         self.iface.mapCanvas().refresh();
         
         
@@ -414,6 +417,7 @@ class ParcoursGrille:
                 
                 
     def goId(self):
+        
         # On recupere l'id en cours
         currId = self.dockwidget.currentId.text()
         self.goTo(currId)
@@ -422,16 +426,12 @@ class ParcoursGrille:
         
     def goTo(self, currId):
         
-        # 
         layerGrille = None
-#        layerFocus = None
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
                 if (layer.name() == 'Grille'):
                     layerGrille = layer
-#                if (layer.name() == 'Focus'):
-#                    layerFocus = layer
         
         # On parcours les index jusqu'à celui qu'on a 
         for feature in layerGrille.getFeatures():
@@ -444,10 +444,8 @@ class ParcoursGrille:
                 layerGrille.setSelectedFeatures([]);
         
         # On change le focus
-        
         props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
         symbol1 = QgsFillSymbolV2.createSimple(props1)
-        #layerGrille.setRendererV2(QgsSingleSymbolRendererV2(symbol))
         
         props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
         symbol2 = QgsFillSymbolV2.createSimple(props2)
@@ -468,28 +466,78 @@ class ParcoursGrille:
         renderer = QgsCategorizedSymbolRendererV2(expression, categories)
         layerGrille.setRendererV2(renderer)
         
-#        if layerFocus != None:
-#            
-#            pr = layerFocus.dataProvider()
-#            layerFocus.startEditing()
-#            
-#            for feat in layerFocus.getFeatures():
-#                layerFocus.deleteFeature(feat.id())
-#            
-#            # On ajoute le polygone
-#            for feature in layerGrille.getFeatures():
-#                id = feature.attributes()[0]
-#                if str(id) == currId:
-#                    print (id)
-#                    outFeat = QgsFeature()
-#                    geom = feature.geometry()
-#                    outFeat.setGeometry(geom)
-#                    pr.addFeatures([outFeat])
-#        
-#            # commit to stop editing the layer
-#            layerFocus.commitChanges()
-        
-        
-            
         self.iface.mapCanvas().refresh();
             
+    
+    def raz(self):
+        
+        # ====================================================
+        #    Layer
+        #
+        layerStopLine = None
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if (layer.name() == 'PointsASaisir'):
+                    layerStopLine = layer
+    
+        # On supprime les features du layer
+        # pr = layerStopLine.dataProvider()
+        layerStopLine.startEditing()
+            
+        for feat in layerStopLine.getFeatures():
+            layerStopLine.deleteFeature(feat.id())
+            
+        # commit to stop editing the layer
+        layerStopLine.commitChanges()
+        
+        
+        # ====================================================
+        #    Fichier
+        #
+        # On recupere la ligne d'entete
+        uriSL = self.uriSL
+        txtEntete = ''
+        with open(uriSL, 'r') as file:
+            for line in file:
+                txtEntete = line
+                break
+            file.close()
+            
+        # On vide le fichier
+        with open(uriSL, "w") as file:
+            file.write(txtEntete)
+            file.close()
+            
+        file.close()
+        
+        
+        #
+        with open(self.uriSL) as f:
+            i = 0
+            num_lines = sum(1 for line in open(self.uriSL))
+            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
+            
+            cpt = 0
+            for line in f:
+                if cpt == 0:
+                    # Ligne d'entete
+                    entetes = line.strip().split(",")
+                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
+                    colHearder = []
+                    for j in range(len(entetes)):
+                        nom = entetes[j]
+                        colHearder.append(nom)
+                    self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
+                else:
+                    coord = line.strip().split(",")
+                    if len(coord) > 1:
+                        itemX = QTableWidgetItem(str(coord[0]))
+                        itemY = QTableWidgetItem(str(coord[1]))
+                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
+                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
+                        i = i + 1
+                cpt = cpt + 1
+            
+            f.close()
+    
