@@ -30,6 +30,7 @@ from qgis.core import QgsMapLayerRegistry
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
 
 from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbolV2
+from qgis.core import QgsRendererCategoryV2, QgsCategorizedSymbolRendererV2
 
 # Initialize Qt resources from file resources.py
 from resources import resources
@@ -62,7 +63,7 @@ class ParcoursGrille:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'ParcoursGrille_{}.qm'.format(locale))
+            'PoussePousseEditData_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -78,18 +79,18 @@ class ParcoursGrille:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Parcours grille')
+        self.menu = self.tr(u'&PoussePousseEditData')
         
         # We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ParcoursGrille')
-        self.toolbar.setObjectName(u'ParcoursGrille')
+        self.toolbar = self.iface.addToolBar(u'PoussePousseEditData')
+        self.toolbar.setObjectName(u'PoussePousseEditData')
         
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API."""
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('ParcoursGrille', message)
+        return QCoreApplication.translate('PoussePousseEditData', message)
 
 
     def add_action(
@@ -135,7 +136,7 @@ class ParcoursGrille:
         icon_path = ':/plugins/PoussePousseEditData/img/logoPoussePousseEditData.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Panneau des outils pour la saisie des feux tricolores'),
+            text=self.tr(u'Panneau des outils pour la saisie et la validation des données'),
             callback=self.run,
             parent=self.iface.mainWindow())
         
@@ -155,7 +156,7 @@ class ParcoursGrille:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Parcours grille'),
+                self.tr(u'&PoussePousseEditData'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
@@ -211,7 +212,7 @@ class ParcoursGrille:
         
         extent = layerGrille.extent()
         self.iface.mapCanvas().setExtent(extent)
-        
+        self.iface.mapCanvas().refresh();
     
     def addStopLine(self):
         
@@ -233,12 +234,12 @@ class ParcoursGrille:
         layerGrille.setRendererV2(QgsSingleSymbolRendererV2(s))
         
         #  Nouveau layer pour indiquer le focus en cours
-        layerFocus = QgsVectorLayer ("Polygon?crs=" + self.projGrille, "Focus", "memory")
-        QgsMapLayerRegistry.instance().addMapLayer(layerFocus)
-        
-        props = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
-        s = QgsFillSymbolV2.createSimple(props)
-        layerFocus.setRendererV2(QgsSingleSymbolRendererV2(s))
+#        layerFocus = QgsVectorLayer ("Polygon?crs=" + self.projGrille, "Focus", "memory")
+#        QgsMapLayerRegistry.instance().addMapLayer(layerFocus)
+#        
+#        props = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
+#        s = QgsFillSymbolV2.createSimple(props)
+#        layerFocus.setRendererV2(QgsSingleSymbolRendererV2(s))
         
         self.goTo("0")
 
@@ -277,8 +278,8 @@ class ParcoursGrille:
                     if len(coord) > 1:
                         itemX = QTableWidgetItem(str(coord[0]))
                         itemY = QTableWidgetItem(str(coord[1]))
-                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX);
-                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY);
+                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
+                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
                         i = i + 1
                 cpt = cpt + 1
             
@@ -296,7 +297,7 @@ class ParcoursGrille:
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'StopLine'):
+                if (layer.name() == 'PointsASaisir'):
                     self.layerStopLine = layer
         
         if self.layerStopLine == None:
@@ -304,7 +305,14 @@ class ParcoursGrille:
             proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
             if hasattr(self, 'projGrille') and self.projGrille != None:
                 proj = self.projGrille
-            self.layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "StopLine", "memory")
+            self.layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsASaisir", "memory")
+            
+            # Style
+            # Symbologie des stations
+            symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,127,0'})
+            symbolPoint.setColor(QColor.fromRgb(216,7,96))  #F 216,7,96
+            symbolPoint.setSize(3)
+            self.layerStopLine.rendererV2().setSymbol(symbolPoint)
             
             # La couche est creee , il faut l'ajouter a l'interface
             QgsMapLayerRegistry.instance().addMapLayer(self.layerStopLine)
@@ -416,14 +424,14 @@ class ParcoursGrille:
         
         # 
         layerGrille = None
-        layerFocus = None
+#        layerFocus = None
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
                 if (layer.name() == 'Grille'):
                     layerGrille = layer
-                if (layer.name() == 'Focus'):
-                    layerFocus = layer
+#                if (layer.name() == 'Focus'):
+#                    layerFocus = layer
         
         # On parcours les index jusqu'à celui qu'on a 
         for feature in layerGrille.getFeatures():
@@ -436,26 +444,52 @@ class ParcoursGrille:
                 layerGrille.setSelectedFeatures([]);
         
         # On change le focus
-        if layerFocus != None:
-            
-            pr = layerFocus.dataProvider()
-            layerFocus.startEditing()
-            
-            for feat in layerFocus.getFeatures():
-                layerFocus.deleteFeature(feat.id())
-            
-            # On ajoute le polygone
-            for feature in layerGrille.getFeatures():
-                id = feature.attributes()[0]
-                if str(id) == currId:
-                    print (id)
-                    outFeat = QgsFeature()
-                    geom = feature.geometry()
-                    outFeat.setGeometry(geom)
-                    pr.addFeatures([outFeat])
         
-            # commit to stop editing the layer
-            layerFocus.commitChanges()
+        props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
+        symbol1 = QgsFillSymbolV2.createSimple(props1)
+        #layerGrille.setRendererV2(QgsSingleSymbolRendererV2(symbol))
+        
+        props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
+        symbol2 = QgsFillSymbolV2.createSimple(props2)
+        
+        categories = []
+        for feature in layerGrille.getFeatures():
+            id = feature.attributes()[0]
+            if str(id) == currId:
+                category = QgsRendererCategoryV2(id, symbol2, str(id))
+                categories.append(category)
+            else:
+                category = QgsRendererCategoryV2(id, symbol1, str(id))
+                categories.append(category)
+        
+        
+        # Create the renderer and assign it to a layer
+        expression = 'id' # Field name
+        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+        layerGrille.setRendererV2(renderer)
+        
+#        if layerFocus != None:
+#            
+#            pr = layerFocus.dataProvider()
+#            layerFocus.startEditing()
+#            
+#            for feat in layerFocus.getFeatures():
+#                layerFocus.deleteFeature(feat.id())
+#            
+#            # On ajoute le polygone
+#            for feature in layerGrille.getFeatures():
+#                id = feature.attributes()[0]
+#                if str(id) == currId:
+#                    print (id)
+#                    outFeat = QgsFeature()
+#                    geom = feature.geometry()
+#                    outFeat.setGeometry(geom)
+#                    pr.addFeatures([outFeat])
+#        
+#            # commit to stop editing the layer
+#            layerFocus.commitChanges()
+        
+        
             
         self.iface.mapCanvas().refresh();
             

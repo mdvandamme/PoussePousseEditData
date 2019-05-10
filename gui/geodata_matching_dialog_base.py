@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geodata_matching_dialog_base.ui'
 #
-# Created: Fri May 03 14:55:47 2019
+# Created: Fri May 10 16:45:05 2019
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,12 +47,12 @@ class Ui_DockWidget(object):
         self.btGo.setGeometry(QtCore.QRect(200, 50, 75, 23))
         self.btGo.setObjectName(_fromUtf8("btGo"))
         self.tableCoordFeu = QtGui.QTableWidget(self.dockWidgetContents)
-        self.tableCoordFeu.setGeometry(QtCore.QRect(10, 310, 321, 181))
+        self.tableCoordFeu.setGeometry(QtCore.QRect(10, 320, 321, 181))
         self.tableCoordFeu.setRowCount(5)
         self.tableCoordFeu.setColumnCount(2)
         self.tableCoordFeu.setObjectName(_fromUtf8("tableCoordFeu"))
         self.btSynchronize = QtGui.QPushButton(self.dockWidgetContents)
-        self.btSynchronize.setGeometry(QtCore.QRect(120, 510, 191, 23))
+        self.btSynchronize.setGeometry(QtCore.QRect(80, 520, 171, 23))
         self.btSynchronize.setObjectName(_fromUtf8("btSynchronize"))
         self.fileImportGrille = QgsFileWidget(self.dockWidgetContents)
         self.fileImportGrille.setGeometry(QtCore.QRect(80, 0, 251, 27))
@@ -72,7 +72,7 @@ class Ui_DockWidget(object):
         self.btPrec.setGeometry(QtCore.QRect(50, 80, 111, 23))
         self.btPrec.setObjectName(_fromUtf8("btPrec"))
         self.btZoomGrille = QtGui.QPushButton(self.dockWidgetContents)
-        self.btZoomGrille.setGeometry(QtCore.QRect(30, 510, 91, 23))
+        self.btZoomGrille.setGeometry(QtCore.QRect(10, 520, 71, 23))
         self.btZoomGrille.setObjectName(_fromUtf8("btZoomGrille"))
         self.fileOuvrirInventaireCSV = QgsFileWidget(self.dockWidgetContents)
         self.fileOuvrirInventaireCSV.setGeometry(QtCore.QRect(80, 180, 251, 27))
@@ -83,11 +83,25 @@ class Ui_DockWidget(object):
         self.label_5 = QtGui.QLabel(self.dockWidgetContents)
         self.label_5.setGeometry(QtCore.QRect(135, 210, 191, 20))
         font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Arial"))
         font.setPointSize(8)
         font.setItalic(True)
         self.label_5.setFont(font)
         self.label_5.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.btViderFichier = QtGui.QPushButton(self.dockWidgetContents)
+        self.btViderFichier.setGeometry(QtCore.QRect(250, 520, 75, 23))
+        self.btViderFichier.setObjectName(_fromUtf8("btViderFichier"))
+        self.btValider = QtGui.QPushButton(self.dockWidgetContents)
+        self.btValider.setGeometry(QtCore.QRect(50, 250, 251, 23))
+        self.btValider.setObjectName(_fromUtf8("btValider"))
+        self.label_6 = QtGui.QLabel(self.dockWidgetContents)
+        self.label_6.setGeometry(QtCore.QRect(20, 300, 151, 16))
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Arial"))
+        font.setItalic(True)
+        self.label_6.setFont(font)
+        self.label_6.setObjectName(_fromUtf8("label_6"))
         DockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(DockWidget)
@@ -105,5 +119,8 @@ class Ui_DockWidget(object):
         self.btZoomGrille.setText(_translate("DockWidget", "Zoom Grille", None))
         self.label_2.setText(_translate("DockWidget", "Import CSV:", None))
         self.label_5.setText(_translate("DockWidget", "Caractère séparateur \",\" Avec Entête", None))
+        self.btViderFichier.setText(_translate("DockWidget", "Vider fichier", None))
+        self.btValider.setText(_translate("DockWidget", "Valider la saisie", None))
+        self.label_6.setText(_translate("DockWidget", "Vue sur le fichier en cours:", None))
 
 from qgis.gui import QgsFileWidget

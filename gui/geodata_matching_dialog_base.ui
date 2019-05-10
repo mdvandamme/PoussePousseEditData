@@ -73,7 +73,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>310</y>
+      <y>320</y>
       <width>321</width>
       <height>181</height>
      </rect>
@@ -95,9 +95,9 @@
    <widget class="QPushButton" name="btSynchronize">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>510</y>
-      <width>191</width>
+      <x>80</x>
+      <y>520</y>
+      <width>171</width>
       <height>23</height>
      </rect>
     </property>
@@ -170,9 +170,9 @@
    <widget class="QPushButton" name="btZoomGrille">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>510</y>
-      <width>91</width>
+      <x>10</x>
+      <y>520</y>
+      <width>71</width>
       <height>23</height>
      </rect>
     </property>
@@ -214,6 +214,7 @@
     </property>
     <property name="font">
      <font>
+      <family>Arial</family>
       <pointsize>8</pointsize>
       <italic>true</italic>
      </font>
@@ -223,6 +224,51 @@
     </property>
     <property name="text">
      <string>Caractère séparateur &quot;,&quot; Avec Entête</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btViderFichier">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>520</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Vider fichier</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btValider">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>250</y>
+      <width>251</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Valider la saisie</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>300</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <italic>true</italic>
+     </font>
+    </property>
+    <property name="text">
+     <string>Vue sur le fichier en cours:</string>
     </property>
    </widget>
   </widget>
