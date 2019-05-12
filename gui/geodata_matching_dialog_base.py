@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geodata_matching_dialog_base.ui'
 #
-# Created: Fri May 10 16:45:05 2019
+# Created: Sun May 12 23:53:40 2019
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_DockWidget(object):
     def setupUi(self, DockWidget):
         DockWidget.setObjectName(_fromUtf8("DockWidget"))
-        DockWidget.resize(356, 675)
+        DockWidget.resize(380, 675)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(150)

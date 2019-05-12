@@ -38,9 +38,10 @@ from resources import resources
 # Import the code for the gui
 from gui.geodata_matching_dialog import GeodataMatchingDialog
 from gui.nearest_feature_map_tool import NearestFeatureMapTool
+from gui.valider_dialog import PluginPoussePousseValideDialog
 
 import os.path
-
+import time
 
 
 class ParcoursGrille:
@@ -84,6 +85,8 @@ class ParcoursGrille:
         # We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'PoussePousseEditData')
         self.toolbar.setObjectName(u'PoussePousseEditData')
+        
+        self.dlg = PluginPoussePousseValideDialog()
         
 
     # noinspection PyMethodMayBeStatic
@@ -196,6 +199,7 @@ class ParcoursGrille:
                 self.dockwidget.btSynchronize.clicked.connect(self.synchronize)
                 self.dockwidget.btZoomGrille.clicked.connect(self.zoomEmprise)
                 self.dockwidget.btViderFichier.clicked.connect(self.raz)
+                self.dockwidget.btValider.clicked.connect(self.valider)
                 
                 self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
                 self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
@@ -225,23 +229,16 @@ class ParcoursGrille:
         
         # On charge la couche
         uri = self.dockwidget.fileImportGrille.filePath()
+        # print (uri)
         layerGrille = QgsVectorLayer(uri, "Grille", "ogr")
         QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
         
         self.projGrille = layerGrille.crs().authid()
 
         # Style 
-        props = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
+        props = {'color': '241,241,241,0', 'size':'1', 'color_border' : '255,0,0'}
         s = QgsFillSymbolV2.createSimple(props)
         layerGrille.setRendererV2(QgsSingleSymbolRendererV2(s))
-        
-        #  Nouveau layer pour indiquer le focus en cours
-#        layerFocus = QgsVectorLayer ("Polygon?crs=" + self.projGrille, "Focus", "memory")
-#        QgsMapLayerRegistry.instance().addMapLayer(layerFocus)
-#        
-#        props = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
-#        s = QgsFillSymbolV2.createSimple(props)
-#        layerFocus.setRendererV2(QgsSingleSymbolRendererV2(s))
         
         self.goTo("0")
 
@@ -540,4 +537,106 @@ class ParcoursGrille:
                 cpt = cpt + 1
             
             f.close()
+            
     
+    def valider(self):
+        
+        # On désactive le fichier d'inventaire
+        self.dockwidget.fileOuvrirInventaireCSV.setDisabled(True)
+        self.dockwidget.btSynchronize.setDisabled(True)
+        
+        # On supprime le layer
+        layerStopLine = None
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if (layer.name() == 'PointsASaisir'):
+                    layerStopLine = layer
+        if layerStopLine != None:
+            QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+        
+        # On crée un nouveau fichier
+        # on cree le fichier
+        self.uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+        head, tail = os.path.split(self.uriSL)
+        
+        tps = time.strftime("%Y_%m_%d_%H_%M_%S")
+        chemin = head + '\\validation_' + tps + '.dat'
+        f = open(chemin, "w+")
+        f.write('x,y' + '\n')
+        f.close()
+        
+        self.uriSL = chemin
+        
+        # Vider le tableau
+        with open(self.uriSL) as f:
+            i = 0
+            num_lines = sum(1 for line in open(self.uriSL))
+            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
+            
+            cpt = 0
+            for line in f:
+                if cpt == 0:
+                    # Ligne d'entete
+                    entetes = line.strip().split(",")
+                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
+                    colHearder = []
+                    for j in range(len(entetes)):
+                        nom = entetes[j]
+                        colHearder.append(nom)
+                    self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
+                else:
+                    coord = line.strip().split(",")
+                    if len(coord) > 1:
+                        itemX = QTableWidgetItem(str(coord[0]))
+                        itemY = QTableWidgetItem(str(coord[1]))
+                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
+                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
+                        i = i + 1
+                cpt = cpt + 1
+            
+            f.close()
+            
+        # On cree un layer de validation
+        # ====================================================
+        #    Layer
+        #
+        self.layerStopLine = None
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if (layer.name() == 'PointsAControler'):
+                    self.layerStopLine = layer
+        
+        if self.layerStopLine == None:
+            # creation du layer point
+            proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
+            if hasattr(self, 'projGrille') and self.projGrille != None:
+                proj = self.projGrille
+            self.layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
+            
+            # Style
+            # Symbologie des stations
+            symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
+            symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
+            symbolPoint.setSize(3)
+            self.layerStopLine.rendererV2().setSymbol(symbolPoint)
+            
+            # La couche est creee , il faut l'ajouter a l'interface
+            QgsMapLayerRegistry.instance().addMapLayer(self.layerStopLine)
+            
+            
+        # On passe le chemin et le layer a l'outil de saisie
+        self.nearestFeatureMapTool.setLayer(self.layerStopLine)
+        self.nearestFeatureMapTool.setUrl(self.uriSL)
+        
+        # popup
+        # show the dialog
+        self.dlg.show()
+        # Run the dialog event loop
+        result = self.dlg.exec_()
+        # See if OK was pressed
+        if result:
+            nbCell = int(self.dlg.editNbCellTirage.text())
+            print (nbCell)
+        
