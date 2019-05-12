@@ -544,6 +544,7 @@ class ParcoursGrille:
         # On désactive le fichier d'inventaire
         self.dockwidget.fileOuvrirInventaireCSV.setDisabled(True)
         self.dockwidget.btSynchronize.setDisabled(True)
+        self.dockwidget.btViderFichier.setDisabled(True)
         
         # On supprime le layer
         layerStopLine = None
