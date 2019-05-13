@@ -292,6 +292,9 @@ class ParcoursGrille:
         s = QgsFillSymbolV2.createSimple(props)
         layerGrille.setRendererV2(QgsSingleSymbolRendererV2(s))
         
+        # On intialise les variables de grandeur de la grille
+        self.init_param_grille()
+        
         # On enregistre le chemin dans les settings
         self.settings('grille', uriGrille)
         
@@ -409,11 +412,7 @@ class ParcoursGrille:
         self.iface.mapCanvas().refresh();
         
         
-    
-    def doSuivant(self):
-        
-        # On recupere l'id en cours
-        currId = self.dockwidget.currentId.text()
+    def init_param_grille(self):
         
         # On recupere le layer
         layerGrille = None
@@ -425,10 +424,10 @@ class ParcoursGrille:
         
         
         # Liste des identifiants
-        idList = []
+        self.idList = []
         for feature in layerGrille.getFeatures():
             id = feature.attributes()[0]
-            idList.append(id)
+            self.idList.append(id)
             
         # Nombre de cellule par ligne
         xmax = 0
@@ -445,36 +444,40 @@ class ParcoursGrille:
                 xmax = geom.boundingBox().xMaximum()
                 self.r = xmax - geom.boundingBox().xMinimum()
             cpt = cpt + 1
-        nCell = cpt
-        self.nx = nCell
+        self.nx = cpt
         
         # Nombre de cellule par colonne
         nb = layerGrille.featureCount()
         # print (nb)
         self.ny = nb / self.nx
         
-        # On permutte tous les nCell
+        # On permutte toutes les nCell de x
         cpt = 0
-        for i in range(0, len(idList), nCell):
+        for i in range(0, len(self.idList), self.nx):
             if ((cpt%2) == 1):
                 # On permutte
-                for j in range (i, int((i + i + nCell) / 2)):
+                for j in range (i, int((i + i + self.nx) / 2)):
                     k = j - i
-                    t = idList[i + nCell - 1 - k]
-                    idList[i + nCell - 1 - k] = idList[i + k]
-                    idList[i + k] = t
+                    t = self.idList[i + self.nx - 1 - k]
+                    self.idList[i + self.nx - 1 - k] = self.idList[i + k]
+                    self.idList[i + k] = t
             cpt = cpt + 1
         # print (idList)
         
-
+    
+    def doSuivant(self):
+        
+        # On recupere l'id en cours
+        currId = self.dockwidget.currentId.text()
+        
         # On cherche l'index de la valeur currId
         newindex = 0
-        for i in range(len(idList)):
-            if (idList[i] == int(currId)):
+        for i in range(len(self.idList)):
+            if (self.idList[i] == int(currId)):
                 newindex = i
-        if (newindex < (len(idList) - 1)):
+        if (newindex < (len(self.idList) - 1)):
             # incremente au suivant
-            nextId = idList[newindex + 1]
+            nextId = self.idList[newindex + 1]
             self.dockwidget.currentId.setText(str(nextId))
             self.goTo(str(nextId))
         
