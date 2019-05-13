@@ -166,12 +166,12 @@ def intersects(segment1, segment2):
 # Fonction d'echantillonnage d'indices de cellules 
 # dans l'enveloppe convexe d'un semis de points
 # Entrees : 
-#      - xmin, ymin : coordonnées min de la grille
+#      - xmin, ymin : coordonnees min de la grille
 #      - nx, ny : nombres de cellules en x et y
 #      - r : taille des cellules
-#      - N : nombre de cellules à échantillonner
-#      - T : tableau (à 2 colonnes) du semis
-# Sortie : liste d'indices de cellules sélectionnées
+#      - N : nombre de cellules a echantillonner
+#      - T : tableau (a 2 colonnes) du semis
+# Sortie : liste d'indices de cellules selectionnees
 # ---------------------------------------------------
 def sampleInConvexHull(xmin, ymin, nx, ny, r, N, T):
 
@@ -261,4 +261,4 @@ def test():
 
 	plt.show()
 	
-test()
+# test()

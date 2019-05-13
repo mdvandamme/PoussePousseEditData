@@ -43,7 +43,8 @@ from gui.valider_dialog import PluginPoussePousseValideDialog
 import os.path
 import time
 
-# 
+# Tirage des points
+import sampleConvexHull as tirage
 
 
 class ParcoursGrille:
@@ -183,17 +184,16 @@ class ParcoursGrille:
                 
                 # =======
                 #   Settings
+                trouve = False
                 self.uriSettings = os.path.join(self.plugin_dir,'settings.conf')
                 isSettingsExist = os.path.exists(self.uriSettings)
                 if (not isSettingsExist):
                     # on cree le fichier
                     f = open(self.uriSettings, "w+")
                     f.close()
-                    
-                    self.dockwidget.tableCoordFeu.setRowCount(0)
-                    self.dockwidget.tableCoordFeu.setColumnCount(0)
                 else:
                     # On recupere les infos pour initialiser
+                    
                     with open(self.uriSettings) as f:
                         for line in f:
                             
@@ -208,14 +208,18 @@ class ParcoursGrille:
                                 uriPtASaisir = line[10:len(line)]
                                 self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
                                 self.importInventaireCSV()
-                            else:
-                                self.dockwidget.tableCoordFeu.setRowCount(0)
-                                self.dockwidget.tableCoordFeu.setColumnCount(0)
+                                trouve = True
+                                
+                                
                             
                     f.close()
         
                 # On initialise la cellule de démarrage
                 self.dockwidget.currentId.setText("0")
+                
+                if not trouve:
+                    self.dockwidget.tableCoordFeu.setRowCount(0)
+                    self.dockwidget.tableCoordFeu.setColumnCount(0)
                 
                 # Gestion des fichiers
                 # self.dockwidget.feuFilename.setDisabled(True);
@@ -237,6 +241,8 @@ class ParcoursGrille:
                 self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
                 self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
                 
+        self.iface.mapCanvas().refresh()
+                
         # show the dockwidget
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
         self.dockwidget.show()
@@ -253,7 +259,7 @@ class ParcoursGrille:
         if layerGrille != None:
             extent = layerGrille.extent()
             self.iface.mapCanvas().setExtent(extent)
-            self.iface.mapCanvas().refresh();
+            self.iface.mapCanvas().refresh()
     
     
     def addStopLine(self):
@@ -268,16 +274,16 @@ class ParcoursGrille:
         # print (uriGrille)
         
         # print (uri)
-        layerGrille = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
-                    layerGrille = layer
+#        layerGrille = None
+#        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+#        for layer in layers:
+#            if layer.type() == QgsMapLayer.VectorLayer:
+#                if (layer.name() == 'Grille'):
+#                    layerGrille = layer
         
-        if layerGrille == None:
-            layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
-            QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
+#        if layerGrille == None:
+        layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
+        QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
         
         self.projGrille = layerGrille.crs().authid()
 
@@ -311,14 +317,14 @@ class ParcoursGrille:
             i = 0
             num_lines = sum(1 for line in open(uriSL))
             #print (num_lines)
-            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
+            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1)
             
             cpt = 0
             for line in f:
                 if cpt == 0:
                     # Ligne d'entete
                     entetes = line.strip().split(",")
-                    #print (len(entetes))
+                    # print (len(entetes))
                     self.dockwidget.tableCoordFeu.setColumnCount(len(entetes))
                     colHearder = []
                     for j in range(len(entetes)):
@@ -426,6 +432,7 @@ class ParcoursGrille:
             
         # Nombre de cellule par ligne
         xmax = 0
+        self.r = 0
         cpt = 0
         for feature in layerGrille.getFeatures():
             geom = feature.geometry()
@@ -436,8 +443,15 @@ class ParcoursGrille:
                     break
             else:
                 xmax = geom.boundingBox().xMaximum()
+                self.r = xmax - geom.boundingBox().xMinimum()
             cpt = cpt + 1
         nCell = cpt
+        self.nx = nCell
+        
+        # Nombre de cellule par colonne
+        nb = layerGrille.featureCount()
+        # print (nb)
+        self.ny = nb / self.nx
         
         # On permutte tous les nCell
         cpt = 0
@@ -602,11 +616,15 @@ class ParcoursGrille:
         
         # On supprime le layer
         layerStopLine = None
+        layerGrille = None
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
                 if (layer.name() == 'PointsASaisir'):
                     layerStopLine = layer
+                if layer.name() == 'Grille':
+                    layerGrille = layer
+        
         if layerStopLine != None:
             QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
         
@@ -693,9 +711,22 @@ class ParcoursGrille:
         
         # See if OK was pressed
         if result:
-            nbCell = int(self.dlg.editNbCellTirage.text())
-            print (nbCell)
             
+            r = 10
+            N = int(self.dlg.editNbCellTirage.text())
+            #print (nbCell)
+            
+            xmin = layerGrille.extent().xMinimum()
+            xmax = layerGrille.extent().xMaximum()
+            ymin = layerGrille.extent().yMinimum()
+            ymax = layerGrille.extent().yMaximum()
+            
+            nx = self.nx
+            ny = self.ny
+            r = self.r
+            
+            T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]])
+            print (T)
             
             
     def settings(self, cle, newUrl):
