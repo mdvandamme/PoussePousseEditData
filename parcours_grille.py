@@ -511,28 +511,36 @@ class ParcoursGrille:
                     self.iface.mapCanvas().refresh();
                     layerGrille.setSelectedFeatures([]);
             
-            # On change le focus
-            props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
-            symbol1 = QgsFillSymbolV2.createSimple(props1)
-            
-            props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
-            symbol2 = QgsFillSymbolV2.createSimple(props2)
-            
-            categories = []
-            for feature in layerGrille.getFeatures():
-                id = feature.attributes()[0]
-                if str(id) == currId:
-                    category = QgsRendererCategoryV2(id, symbol2, str(id))
-                    categories.append(category)
-                else:
-                    category = QgsRendererCategoryV2(id, symbol1, str(id))
-                    categories.append(category)
-            
-            
-            # Create the renderer and assign it to a layer
-            expression = 'id' # Field name
-            renderer = QgsCategorizedSymbolRendererV2(expression, categories)
-            layerGrille.setRendererV2(renderer)
+            # On change le focus si saisie
+            changeFocus = True
+            layers = QgsMapLayerRegistry.instance().mapLayers().values()
+            for layer in layers:
+                if layer.type() == QgsMapLayer.VectorLayer:
+                    if (layer.name() == 'PointsAControler'):
+                        changeFocus = False
+                        
+            if changeFocus:
+                props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
+                symbol1 = QgsFillSymbolV2.createSimple(props1)
+                
+                props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
+                symbol2 = QgsFillSymbolV2.createSimple(props2)
+                
+                categories = []
+                for feature in layerGrille.getFeatures():
+                    id = feature.attributes()[0]
+                    if str(id) == currId:
+                        category = QgsRendererCategoryV2(id, symbol2, str(id))
+                        categories.append(category)
+                    else:
+                        category = QgsRendererCategoryV2(id, symbol1, str(id))
+                        categories.append(category)
+                
+                
+                # Create the renderer and assign it to a layer
+                expression = 'id' # Field name
+                renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+                layerGrille.setRendererV2(renderer)
         
         self.iface.mapCanvas().refresh();
             
@@ -725,12 +733,61 @@ class ParcoursGrille:
             ymax = layerGrille.extent().yMaximum()
             
             nx = self.nx
+            # print ('nx=' + str(nx))
             ny = self.ny
             r = self.r
             
             T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]])
-            print (T)
+            # print (T)
             
+            # ----------------------------------------------------------------------------
+            # On change le parcours
+            self.idList = []
+            
+            # -----------------------------------------------------------------------------
+            #    Style layer
+            # On change le focus
+            props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
+            symbol1 = QgsFillSymbolV2.createSimple(props1)
+            
+            #props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
+            #symbol2 = QgsFillSymbolV2.createSimple(props2)
+            
+            props3 = {'color': '180,180,180', 'size':'1', 'color_border' : '180,180,180', 'width_border':'1'}
+            symbol3 = QgsFillSymbolV2.createSimple(props3)
+            
+            categories = []
+            for feature in layerGrille.getFeatures():
+                id = feature.attributes()[0]
+                
+                # est-ce que tire ?
+                tire = False
+                for (i,j) in T:
+                    encours = (i ) * nx + j
+                    
+                    if encours == int(id):
+                        tire = True
+                
+                if tire:
+                    self.idList.append(int(id))
+                    category = QgsRendererCategoryV2(id, symbol1, str(id))
+                    categories.append(category)
+                else:
+                    category = QgsRendererCategoryV2(id, symbol3, str(id))
+                    categories.append(category)
+            
+            # Create the renderer and assign it to a layer
+            expression = 'id' # Field name
+            renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+            layerGrille.setRendererV2(renderer)
+            
+            # print (self.idList)
+            # On initialise la cellule de démarrage
+            premier = str(self.idList[0])
+            self.dockwidget.currentId.setText(premier)
+            self.goTo(premier)
+            
+            self.zoomEmprise()
             
     def settings(self, cle, newUrl):
         
