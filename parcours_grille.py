@@ -189,21 +189,31 @@ class ParcoursGrille:
                     # on cree le fichier
                     f = open(self.uriSettings, "w+")
                     f.close()
+                    
+                    self.dockwidget.tableCoordFeu.setRowCount(0)
+                    self.dockwidget.tableCoordFeu.setColumnCount(0)
                 else:
                     # On recupere les infos pour initialiser
                     with open(self.uriSettings) as f:
                         for line in f:
-                            # entetes = line.strip().split(",")
+                            
                             prefix = 'grille'
                             if line.strip().startswith(prefix):
                                 uriGrille = line[7:len(line)]
-                                self.dockwidget.fileImportGrille.setFilePath(uriGrille)
+                                self.dockwidget.fileImportGrille.setFilePath(uriGrille.strip())
                                 self.importGrille()
+                            
+                            prefix = 'ptASaisir'
+                            if line.strip().startswith(prefix):
+                                uriPtASaisir = line[10:len(line)]
+                                self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
+                                self.importInventaireCSV()
+                            else:
+                                self.dockwidget.tableCoordFeu.setRowCount(0)
+                                self.dockwidget.tableCoordFeu.setColumnCount(0)
+                            
                     f.close()
         
-                
-                
-                
                 # On initialise la cellule de démarrage
                 self.dockwidget.currentId.setText("0")
                 
@@ -211,8 +221,6 @@ class ParcoursGrille:
                 # self.dockwidget.feuFilename.setDisabled(True);
                 
                 # Gestion du tableau
-                self.dockwidget.tableCoordFeu.setRowCount(0);
-                self.dockwidget.tableCoordFeu.setColumnCount(0);
                 self.nearestFeatureMapTool.setTable(self.dockwidget.tableCoordFeu)
                 
                 #
@@ -233,6 +241,7 @@ class ParcoursGrille:
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
         self.dockwidget.show()
         
+        
     def zoomEmprise(self):
         layerGrille = None
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
@@ -241,9 +250,11 @@ class ParcoursGrille:
                 if (layer.name() == 'Grille'):
                     layerGrille = layer
         
-        extent = layerGrille.extent()
-        self.iface.mapCanvas().setExtent(extent)
-        self.iface.mapCanvas().refresh();
+        if layerGrille != None:
+            extent = layerGrille.extent()
+            self.iface.mapCanvas().setExtent(extent)
+            self.iface.mapCanvas().refresh();
+    
     
     def addStopLine(self):
         
@@ -253,17 +264,20 @@ class ParcoursGrille:
     def importGrille(self):
         
         # On charge la couche
-        uriGrille = self.dockwidget.fileImportGrille.filePath()
+        uriGrille = self.dockwidget.fileImportGrille.filePath().strip()
         # print (uriGrille)
         
-        # On enregistre le chemin dans les settings
-        f = open(self.uriSettings, "w+")
-        f.write('grille:' + uriGrille)
-        f.close()
-        
         # print (uri)
-        layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
-        QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
+        layerGrille = None
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if (layer.name() == 'Grille'):
+                    layerGrille = layer
+        
+        if layerGrille == None:
+            layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
+            QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
         
         self.projGrille = layerGrille.crs().authid()
 
@@ -271,6 +285,9 @@ class ParcoursGrille:
         props = {'color': '241,241,241,0', 'size':'1', 'color_border' : '255,0,0'}
         s = QgsFillSymbolV2.createSimple(props)
         layerGrille.setRendererV2(QgsSingleSymbolRendererV2(s))
+        
+        # On enregistre le chemin dans les settings
+        self.settings('grille', uriGrille)
         
         self.goTo("0")
 
@@ -284,14 +301,16 @@ class ParcoursGrille:
         # ====================================================
         #    Fichier CSV
         #
-        # self.dockwidget.feuFilename.setText("stop_line.dat")
-        #self.uriSL = os.path.join(os.path.dirname(__file__) + str('/resources/feu/'),'stop_line.dat')
-        #isSLExist = os.path.exists(self.uriSL)
-        self.uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath().strip()
+        # print (uriSL)
         
-        with open(self.uriSL) as f:
+        # On enregistre le chemin dans les settings
+        self.settings('ptASaisir', uriSL)
+        
+        with open(uriSL) as f:
             i = 0
-            num_lines = sum(1 for line in open(self.uriSL))
+            num_lines = sum(1 for line in open(uriSL))
+            #print (num_lines)
             self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
             
             cpt = 0
@@ -299,7 +318,8 @@ class ParcoursGrille:
                 if cpt == 0:
                     # Ligne d'entete
                     entetes = line.strip().split(",")
-                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
+                    #print (len(entetes))
+                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes))
                     colHearder = []
                     for j in range(len(entetes)):
                         nom = entetes[j]
@@ -325,48 +345,49 @@ class ParcoursGrille:
         # ====================================================
         #    Layer
         #
-        self.layerStopLine = None
+        layerStopLine = None
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
                 if (layer.name() == 'PointsASaisir'):
-                    self.layerStopLine = layer
+                    layerStopLine = layer
         
-        if self.layerStopLine == None:
+        if layerStopLine == None:
             # creation du layer point
             proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
             if hasattr(self, 'projGrille') and self.projGrille != None:
                 proj = self.projGrille
-            self.layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsASaisir", "memory")
+            layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsASaisir", "memory")
             
             # Style
             # Symbologie des stations
             symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,127,0'})
             symbolPoint.setColor(QColor.fromRgb(216,7,96))  #F 216,7,96
             symbolPoint.setSize(3)
-            self.layerStopLine.rendererV2().setSymbol(symbolPoint)
+            layerStopLine.rendererV2().setSymbol(symbolPoint)
             
             # La couche est creee , il faut l'ajouter a l'interface
-            QgsMapLayerRegistry.instance().addMapLayer(self.layerStopLine)
+            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
             
         else:
             # le layer existe, on supprime les features
-            self.layerStopLine.startEditing()
-            for feature in self.layerStopLine.getFeatures():
-                self.layerStopLine.deleteFeature(feature.id())
-            self.layerStopLine.commitChanges()
+            layerStopLine.startEditing()
+            for feature in layerStopLine.getFeatures():
+                layerStopLine.deleteFeature(feature.id())
+            layerStopLine.commitChanges()
             
 
         # On passe le layer à l'outil click
-        self.nearestFeatureMapTool.setLayer(self.layerStopLine)
-        self.nearestFeatureMapTool.setUrl(self.uriSL)
+        self.nearestFeatureMapTool.setLayer(layerStopLine)
+        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+        self.nearestFeatureMapTool.setUrl(uriSL)
         
         
         # On synchronise avec le fichier
         cpt = 0
-        self.layerStopLine.startEditing()
-        pr = self.layerStopLine.dataProvider()
-        with open(self.uriSL) as f:
+        layerStopLine.startEditing()
+        pr = layerStopLine.dataProvider()
+        with open(uriSL) as f:
             for line in f:
                 if cpt > 0:
                     coord = line.strip().split(",")
@@ -376,7 +397,7 @@ class ParcoursGrille:
                         newFeature.setGeometry(geompoint)
                         pr.addFeatures([newFeature]) 
                 cpt = cpt + 1
-        self.layerStopLine.commitChanges() 
+        layerStopLine.commitChanges() 
         
         # On rafraichit le canvas
         self.iface.mapCanvas().refresh();
@@ -462,38 +483,39 @@ class ParcoursGrille:
                 if (layer.name() == 'Grille'):
                     layerGrille = layer
         
-        # On parcours les index jusqu'à celui qu'on a 
-        for feature in layerGrille.getFeatures():
-            id = feature.attributes()[0]
-            if str(id) == currId:
-                # zoom sur la couche
-                layerGrille.setSelectedFeatures([id]);
-                self.iface.mapCanvas().zoomToSelected(layerGrille)
-                self.iface.mapCanvas().refresh();
-                layerGrille.setSelectedFeatures([]);
-        
-        # On change le focus
-        props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
-        symbol1 = QgsFillSymbolV2.createSimple(props1)
-        
-        props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
-        symbol2 = QgsFillSymbolV2.createSimple(props2)
-        
-        categories = []
-        for feature in layerGrille.getFeatures():
-            id = feature.attributes()[0]
-            if str(id) == currId:
-                category = QgsRendererCategoryV2(id, symbol2, str(id))
-                categories.append(category)
-            else:
-                category = QgsRendererCategoryV2(id, symbol1, str(id))
-                categories.append(category)
-        
-        
-        # Create the renderer and assign it to a layer
-        expression = 'id' # Field name
-        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
-        layerGrille.setRendererV2(renderer)
+        if layerGrille != None:
+            # On parcours les index jusqu'à celui qu'on a 
+            for feature in layerGrille.getFeatures():
+                id = feature.attributes()[0]
+                if str(id) == currId:
+                    # zoom sur la couche
+                    layerGrille.setSelectedFeatures([id]);
+                    self.iface.mapCanvas().zoomToSelected(layerGrille)
+                    self.iface.mapCanvas().refresh();
+                    layerGrille.setSelectedFeatures([]);
+            
+            # On change le focus
+            props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
+            symbol1 = QgsFillSymbolV2.createSimple(props1)
+            
+            props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
+            symbol2 = QgsFillSymbolV2.createSimple(props2)
+            
+            categories = []
+            for feature in layerGrille.getFeatures():
+                id = feature.attributes()[0]
+                if str(id) == currId:
+                    category = QgsRendererCategoryV2(id, symbol2, str(id))
+                    categories.append(category)
+                else:
+                    category = QgsRendererCategoryV2(id, symbol1, str(id))
+                    categories.append(category)
+            
+            
+            # Create the renderer and assign it to a layer
+            expression = 'id' # Field name
+            renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+            layerGrille.setRendererV2(renderer)
         
         self.iface.mapCanvas().refresh();
             
@@ -525,7 +547,7 @@ class ParcoursGrille:
         #    Fichier
         #
         # On recupere la ligne d'entete
-        uriSL = self.uriSL
+        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
         txtEntete = ''
         with open(uriSL, 'r') as file:
             for line in file:
@@ -542,9 +564,9 @@ class ParcoursGrille:
         
         
         #
-        with open(self.uriSL) as f:
+        with open(uriSL) as f:
             i = 0
-            num_lines = sum(1 for line in open(self.uriSL))
+            num_lines = sum(1 for line in open(uriSL))
             self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
             
             cpt = 0
@@ -590,8 +612,8 @@ class ParcoursGrille:
         
         # On crée un nouveau fichier
         # on cree le fichier
-        self.uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-        head, tail = os.path.split(self.uriSL)
+        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+        head, tail = os.path.split(uriSL)
         
         tps = time.strftime("%Y_%m_%d_%H_%M_%S")
         chemin = head + '\\validation_' + tps + '.dat'
@@ -599,12 +621,12 @@ class ParcoursGrille:
         f.write('x,y' + '\n')
         f.close()
         
-        self.uriSL = chemin
+        uriSL = chemin
         
         # Vider le tableau
-        with open(self.uriSL) as f:
+        with open(uriSL) as f:
             i = 0
-            num_lines = sum(1 for line in open(self.uriSL))
+            num_lines = sum(1 for line in open(uriSL))
             self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
             
             cpt = 0
@@ -634,42 +656,82 @@ class ParcoursGrille:
         # ====================================================
         #    Layer
         #
-        self.layerStopLine = None
+        layerStopLine = None
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
                 if (layer.name() == 'PointsAControler'):
-                    self.layerStopLine = layer
+                    layerStopLine = layer
         
-        if self.layerStopLine == None:
+        if layerStopLine == None:
             # creation du layer point
             proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
             if hasattr(self, 'projGrille') and self.projGrille != None:
                 proj = self.projGrille
-            self.layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
+            layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
             
             # Style
             # Symbologie des stations
             symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
             symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
             symbolPoint.setSize(3)
-            self.layerStopLine.rendererV2().setSymbol(symbolPoint)
+            layerStopLine.rendererV2().setSymbol(symbolPoint)
             
             # La couche est creee , il faut l'ajouter a l'interface
-            QgsMapLayerRegistry.instance().addMapLayer(self.layerStopLine)
+            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
             
             
         # On passe le chemin et le layer a l'outil de saisie
-        self.nearestFeatureMapTool.setLayer(self.layerStopLine)
-        self.nearestFeatureMapTool.setUrl(self.uriSL)
+        self.nearestFeatureMapTool.setLayer(layerStopLine)
+        self.nearestFeatureMapTool.setUrl(uriSL)
         
         # popup
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
+        
         # See if OK was pressed
         if result:
             nbCell = int(self.dlg.editNbCellTirage.text())
             print (nbCell)
+            
+            
+            
+    def settings(self, cle, newUrl):
+        
+        uriGrille = ''
+        uriPtASaisir = ''
+        
+        # On ouvre le fichier et on enregistre les clés
+        with open(self.uriSettings) as f:
+            for line in f:
+                # entetes = line.strip().split(",")
+                prefix = 'grille'
+                if line.strip().startswith(prefix):
+                    uriGrille = line[7:len(line)]
+                
+                prefix = 'ptASaisir'
+                if line.strip().startswith(prefix):
+                    uriPtASaisir = line[10:len(line)]
+                    
+            f.close()
+    
+        f = open(self.uriSettings, "w+")
+        
+        if cle == 'grille':
+            f.write('grille:' + newUrl + '\n')
+        else:
+            if uriGrille != '':
+                f.write('grille:' + uriGrille + '\n')
+                
+        if cle == 'ptASaisir':
+            f.write('ptASaisir:' + newUrl + '\n')
+        else:
+            if uriPtASaisir != '':
+                f.write('ptASaisir:' + uriPtASaisir + '\n')
+                
+        # On ferme le fichier
+        f.close()
+            
         
