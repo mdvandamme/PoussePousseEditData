@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geodata_matching_dialog_base.ui'
 #
-# Created: Sun May 12 23:53:40 2019
+# Created: Mon May 13 19:37:20 2019
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_DockWidget(object):
     def setupUi(self, DockWidget):
         DockWidget.setObjectName(_fromUtf8("DockWidget"))
-        DockWidget.resize(380, 675)
+        DockWidget.resize(395, 675)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(150)
@@ -47,12 +47,12 @@ class Ui_DockWidget(object):
         self.btGo.setGeometry(QtCore.QRect(200, 50, 75, 23))
         self.btGo.setObjectName(_fromUtf8("btGo"))
         self.tableCoordFeu = QtGui.QTableWidget(self.dockWidgetContents)
-        self.tableCoordFeu.setGeometry(QtCore.QRect(10, 320, 321, 181))
+        self.tableCoordFeu.setGeometry(QtCore.QRect(10, 320, 361, 181))
         self.tableCoordFeu.setRowCount(5)
         self.tableCoordFeu.setColumnCount(2)
         self.tableCoordFeu.setObjectName(_fromUtf8("tableCoordFeu"))
         self.btSynchronize = QtGui.QPushButton(self.dockWidgetContents)
-        self.btSynchronize.setGeometry(QtCore.QRect(80, 520, 171, 23))
+        self.btSynchronize.setGeometry(QtCore.QRect(10, 520, 181, 23))
         self.btSynchronize.setObjectName(_fromUtf8("btSynchronize"))
         self.fileImportGrille = QgsFileWidget(self.dockWidgetContents)
         self.fileImportGrille.setGeometry(QtCore.QRect(80, 0, 251, 27))
@@ -72,7 +72,7 @@ class Ui_DockWidget(object):
         self.btPrec.setGeometry(QtCore.QRect(50, 80, 111, 23))
         self.btPrec.setObjectName(_fromUtf8("btPrec"))
         self.btZoomGrille = QtGui.QPushButton(self.dockWidgetContents)
-        self.btZoomGrille.setGeometry(QtCore.QRect(10, 520, 71, 23))
+        self.btZoomGrille.setGeometry(QtCore.QRect(280, 520, 91, 23))
         self.btZoomGrille.setObjectName(_fromUtf8("btZoomGrille"))
         self.fileOuvrirInventaireCSV = QgsFileWidget(self.dockWidgetContents)
         self.fileOuvrirInventaireCSV.setGeometry(QtCore.QRect(80, 180, 251, 27))
@@ -81,7 +81,7 @@ class Ui_DockWidget(object):
         self.label_2.setGeometry(QtCore.QRect(20, 190, 61, 16))
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.label_5 = QtGui.QLabel(self.dockWidgetContents)
-        self.label_5.setGeometry(QtCore.QRect(135, 210, 191, 20))
+        self.label_5.setGeometry(QtCore.QRect(170, 210, 191, 20))
         font = QtGui.QFont()
         font.setFamily(_fromUtf8("Arial"))
         font.setPointSize(8)
@@ -90,7 +90,7 @@ class Ui_DockWidget(object):
         self.label_5.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.label_5.setObjectName(_fromUtf8("label_5"))
         self.btViderFichier = QtGui.QPushButton(self.dockWidgetContents)
-        self.btViderFichier.setGeometry(QtCore.QRect(250, 520, 75, 23))
+        self.btViderFichier.setGeometry(QtCore.QRect(190, 520, 91, 23))
         self.btViderFichier.setObjectName(_fromUtf8("btViderFichier"))
         self.btValider = QtGui.QPushButton(self.dockWidgetContents)
         self.btValider.setGeometry(QtCore.QRect(50, 250, 251, 23))
