@@ -43,18 +43,14 @@ from gui.valider_dialog import PluginPoussePousseValideDialog
 import os.path
 import time
 
+# 
+
 
 class ParcoursGrille:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
-
-        :param iface: An interface instance that will be passed to this class
-            which provides the hook by which you can manipulate the QGIS
-            application at run time.
-        :type iface: QgsInterface
-        """
+        """Constructor."""
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -162,8 +158,11 @@ class ParcoursGrille:
                 self.tr(u'&PoussePousseEditData'),
                 action)
             self.iface.removeToolBarIcon(action)
+        
         # remove the toolbar
         del self.toolbar
+        
+        # remove layer ?
         
     
     def onClosePlugin(self):
@@ -182,6 +181,29 @@ class ParcoursGrille:
             if self.dockwidget == None:
                 self.dockwidget = GeodataMatchingDialog()
                 
+                # =======
+                #   Settings
+                self.uriSettings = os.path.join(self.plugin_dir,'settings.conf')
+                isSettingsExist = os.path.exists(self.uriSettings)
+                if (not isSettingsExist):
+                    # on cree le fichier
+                    f = open(self.uriSettings, "w+")
+                    f.close()
+                else:
+                    # On recupere les infos pour initialiser
+                    with open(self.uriSettings) as f:
+                        for line in f:
+                            # entetes = line.strip().split(",")
+                            prefix = 'grille'
+                            if line.strip().startswith(prefix):
+                                uriGrille = line[7:len(line)]
+                                self.dockwidget.fileImportGrille.setFilePath(uriGrille)
+                                self.importGrille()
+                    f.close()
+        
+                
+                
+                
                 # On initialise la cellule de démarrage
                 self.dockwidget.currentId.setText("0")
                 
@@ -192,6 +214,9 @@ class ParcoursGrille:
                 self.dockwidget.tableCoordFeu.setRowCount(0);
                 self.dockwidget.tableCoordFeu.setColumnCount(0);
                 self.nearestFeatureMapTool.setTable(self.dockwidget.tableCoordFeu)
+                
+                #
+                # 
                 
                 # On active les boutons avec des evenements click
                 self.dockwidget.btSuiv.clicked.connect(self.doSuivant)
@@ -228,9 +253,16 @@ class ParcoursGrille:
     def importGrille(self):
         
         # On charge la couche
-        uri = self.dockwidget.fileImportGrille.filePath()
+        uriGrille = self.dockwidget.fileImportGrille.filePath()
+        # print (uriGrille)
+        
+        # On enregistre le chemin dans les settings
+        f = open(self.uriSettings, "w+")
+        f.write('grille:' + uriGrille)
+        f.close()
+        
         # print (uri)
-        layerGrille = QgsVectorLayer(uri, "Grille", "ogr")
+        layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
         QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
         
         self.projGrille = layerGrille.crs().authid()
