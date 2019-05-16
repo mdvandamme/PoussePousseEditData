@@ -142,7 +142,7 @@ class ParcoursGrille:
         
         # Create a new NearestFeatureMapTool and keep reference
         self.nearestFeatureMapTool = NearestFeatureMapTool(self.iface.mapCanvas())
-        icon_path = ':/plugins/PoussePousseEditData/img/CreateStopLine.png'
+        icon_path = ':/plugins/PoussePousseEditData/img/add.png'
         action = self.add_action(
             icon_path,
             text = self.tr(u'Add stop-line.'),
@@ -150,6 +150,15 @@ class ParcoursGrille:
             parent = self.iface.mainWindow())
         action.setCheckable(True)
         self.nearestFeatureMapTool.setAction(action)
+        
+        # Create a new NearestFeatureMapTool and keep reference
+        icon_path = ':/plugins/PoussePousseEditData/img/delete.png'
+        action = self.add_action(
+            icon_path,
+            text = self.tr(u'Delete stop-line.'),
+            callback = self.deleteStopLine,
+            parent = self.iface.mainWindow())
+        action.setCheckable(True)
 
 
     def unload(self):
@@ -826,3 +835,5 @@ class ParcoursGrille:
         f.close()
             
         
+    def deleteStopLine(self):
+        pass
