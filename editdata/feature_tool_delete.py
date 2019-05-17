@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  
- Create new point. Synchonize with layer and file
+ Delete point. Synchonize with layer and file
                               -------------------
         begin                : 2018-07-11
         git sha              : $Format:%H$
@@ -15,31 +15,28 @@ from qgis.gui import QgsMapTool
 from qgis.core import QgsMapLayer
 from PyQt4.QtGui import QCursor
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QTableWidgetItem
 
-from qgis.core import QgsMapLayerRegistry
-from qgis.core import QgsPoint, QgsGeometry, QgsFeature
+import math
+import sys
 
-import os.path
+import util_layer
+import util_io
+import util_table
 
 
-class NearestFeatureMapTool(QgsMapTool):
+class FeatureToolDelete(QgsMapTool):
     
     
     def __init__(self, canvas):
-        
         super(QgsMapTool, self).__init__(canvas)
         self.canvas = canvas
         self.cursor = QCursor(Qt.CrossCursor)
-        
     
     def activate(self):
         self.canvas.setCursor(self.cursor)
-        
     
     def setTable(self, table):
         self.table = table
-        
         
     def setLayer(self, layer):
         self.layer = layer
@@ -63,37 +60,32 @@ class NearestFeatureMapTool(QgsMapTool):
         
         p = mouseEvent.pos()
         # Determine the location of the click in real-world coords
-        layerPoint = self.toLayerCoordinates( layerGrille, p )
+        layerPoint = self.toLayerCoordinates(layerGrille, p)
 
-        # On ajoute les coordonnées au tableau
-        n = self.table.rowCount()
-        self.table.insertRow( n );
+        # ====================================================================
+        # On cherche le point le plus proche
+        d = sys.float_info.max
+        indice = -1
+        for i in range(self.table.rowCount()):
+            x = float(self.table.item(i, 0).text())
+            y = float(self.table.item(i, 1).text())
+            
+            dc = math.sqrt((layerPoint.x() - x)**2 + (layerPoint.y() - y)**2)
+            if dc < d:
+                d = dc
+                indice = i
+
+        # ====================================================================
+        # On supprime le point du fichier
+        util_io.suppLigne(self.url, indice)
         
-        itemX = QTableWidgetItem(str(layerPoint.x()))
-        itemY = QTableWidgetItem(str(layerPoint.y()))
-        self.table.setItem(n, 0, itemX);
-        self.table.setItem(n, 1, itemY);
-        self.table.scrollToBottom();
+        # On supprime les coordonnées du tableau
+        self.table = util_table.suppLigne(self.table, indice)
         
-        # On enregistre dans le fichier
-        # uriSL = os.path.join(os.path.dirname(__file__) + str('/../resources/feu/'),'stop_line.dat')
-        uriSL = self.url
-        with open(uriSL, 'a') as file:
-            file.write(str(layerPoint.x()) + ',' + str(layerPoint.y()) + '\n')
-        file.close()
+        # On supprime le point du layer
+        self.layer = util_layer.removeFeature(self.layer, indice)
         
-        
-        # On synchronise avec le fichier
-        self.layer.startEditing()
-        pr = self.layer.dataProvider()
-        
-        geompoint = QgsGeometry.fromPoint(QgsPoint(layerPoint.x(),layerPoint.y()))
-        newFeature = QgsFeature()
-        newFeature.setGeometry(geompoint)
-        pr.addFeatures([newFeature]) 
-                
-        self.layer.commitChanges() 
-        
-        QgsMapLayerRegistry.instance().addMapLayer(self.layer)
+        # ====================================================================
+        # Un petit refresh
         self.canvas.refresh();
 

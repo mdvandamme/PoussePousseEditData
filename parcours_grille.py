@@ -36,15 +36,21 @@ from qgis.core import QgsRendererCategoryV2, QgsCategorizedSymbolRendererV2
 from resources import resources
 
 # Import the code for the gui
-from gui.geodata_matching_dialog import GeodataMatchingDialog
-from gui.nearest_feature_map_tool import NearestFeatureMapTool
-from gui.valider_dialog import PluginPoussePousseValideDialog
+from editdata.geodata_matching_dialog import GeodataMatchingDialog
+from editdata.valider_dialog import PluginPoussePousseValideDialog
+from editdata.feature_tool_add import FeatureToolAdd
+from editdata.feature_tool_delete import FeatureToolDelete
 
 import os.path
 import time
 
 # Tirage des points
 import sampleConvexHull as tirage
+
+# import util_layer
+# import util_io
+# import util_table
+
 
 
 class ParcoursGrille:
@@ -137,11 +143,11 @@ class ParcoursGrille:
         self.add_action(
             icon_path,
             text=self.tr(u'Panneau des outils pour la saisie et la validation des données'),
-            callback=self.run,
+            callback=self.InitPoussePousse,
             parent=self.iface.mainWindow())
         
-        # Create a new NearestFeatureMapTool and keep reference
-        self.nearestFeatureMapTool = NearestFeatureMapTool(self.iface.mapCanvas())
+        # Create a new FeatureToolAdd and keep reference
+        self.featureToolAdd = FeatureToolAdd(self.iface.mapCanvas())
         icon_path = ':/plugins/PoussePousseEditData/img/add.png'
         action = self.add_action(
             icon_path,
@@ -149,16 +155,18 @@ class ParcoursGrille:
             callback = self.addStopLine,
             parent = self.iface.mainWindow())
         action.setCheckable(True)
-        self.nearestFeatureMapTool.setAction(action)
+        self.featureToolAdd.setAction(action)
         
-        # Create a new NearestFeatureMapTool and keep reference
+        # Create a new FeatureToolDelete and keep reference
         icon_path = ':/plugins/PoussePousseEditData/img/delete.png'
+        self.featureToolDelete = FeatureToolDelete(self.iface.mapCanvas())
         action = self.add_action(
             icon_path,
             text = self.tr(u'Delete stop-line.'),
             callback = self.deleteStopLine,
             parent = self.iface.mainWindow())
         action.setCheckable(True)
+        self.featureToolDelete.setAction(action)
 
 
     def unload(self):
@@ -182,7 +190,7 @@ class ParcoursGrille:
         self.pluginIsActive = False
 
 
-    def run(self):
+    def InitPoussePousse(self):
         """Run method that performs all the real work"""
         
         if not self.pluginIsActive:
@@ -234,8 +242,8 @@ class ParcoursGrille:
                 # self.dockwidget.feuFilename.setDisabled(True);
                 
                 # Gestion du tableau
-                self.nearestFeatureMapTool.setTable(self.dockwidget.tableCoordFeu)
-                
+                self.featureToolAdd.setTable(self.dockwidget.tableCoordFeu)
+                self.featureToolDelete.setTable(self.dockwidget.tableCoordFeu)
                 #
                 # 
                 
@@ -271,11 +279,6 @@ class ParcoursGrille:
             self.iface.mapCanvas().refresh()
     
     
-    def addStopLine(self):
-        
-        self.iface.mapCanvas().setMapTool(self.nearestFeatureMapTool)
-        
-        
     def importGrille(self):
         
         # On charge la couche
@@ -395,11 +398,14 @@ class ParcoursGrille:
             layerStopLine.commitChanges()
             
 
-        # On passe le layer à l'outil click
-        self.nearestFeatureMapTool.setLayer(layerStopLine)
+        # On passe le layer aux outils click
+        self.featureToolAdd.setLayer(layerStopLine)
         uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-        self.nearestFeatureMapTool.setUrl(uriSL)
+        self.featureToolAdd.setUrl(uriSL)
         
+        self.featureToolDelete.setLayer(layerStopLine)
+        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+        self.featureToolDelete.setUrl(uriSL)
         
         # On synchronise avec le fichier
         cpt = 0
@@ -515,7 +521,7 @@ class ParcoursGrille:
                 id = feature.attributes()[0]
                 if str(id) == currId:
                     # zoom sur la couche
-                    layerGrille.setSelectedFeatures([id]);
+                    layerGrille.setSelectedFeatures([id])
                     self.iface.mapCanvas().zoomToSelected(layerGrille)
                     self.iface.mapCanvas().refresh();
                     layerGrille.setSelectedFeatures([]);
@@ -594,9 +600,6 @@ class ParcoursGrille:
             file.write(txtEntete)
             file.close()
             
-        file.close()
-        
-        
         #
         with open(uriSL) as f:
             i = 0
@@ -720,8 +723,11 @@ class ParcoursGrille:
             
             
         # On passe le chemin et le layer a l'outil de saisie
-        self.nearestFeatureMapTool.setLayer(layerStopLine)
-        self.nearestFeatureMapTool.setUrl(uriSL)
+        self.featureToolAdd.setLayer(layerStopLine)
+        self.featureToolAdd.setUrl(uriSL)
+        
+        self.featureToolDelete.setLayer(layerStopLine)
+        self.featureToolDelete.setUrl(uriSL)
         
         # popup
         # show the dialog
@@ -835,5 +841,16 @@ class ParcoursGrille:
         f.close()
             
         
+    def addStopLine(self):
+        
+        self.iface.mapCanvas().setMapTool(self.featureToolAdd)
+        
+    
     def deleteStopLine(self):
-        pass
+        
+        self.iface.mapCanvas().setMapTool(self.featureToolDelete)
+
+
+
+
+
