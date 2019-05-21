@@ -49,7 +49,7 @@ import sampleConvexHull as tirage
 
 from editdata import util_layer
 # import util_io
-# import util_table
+from editdata import util_table
 
 
 
@@ -321,35 +321,8 @@ class ParcoursGrille:
         # On enregistre le chemin dans les settings
         self.settings('ptASaisir', uriSL)
         
-        with open(uriSL) as f:
-            i = 0
-            num_lines = sum(1 for line in open(uriSL))
-            #print (num_lines)
-            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1)
-            
-            cpt = 0
-            for line in f:
-                if cpt == 0:
-                    # Ligne d'entete
-                    entetes = line.strip().split(",")
-                    # print (len(entetes))
-                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes))
-                    colHearder = []
-                    for j in range(len(entetes)):
-                        nom = entetes[j]
-                        colHearder.append(nom)
-                    self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
-                else:
-                    coord = line.strip().split(",")
-                    if len(coord) > 1:
-                        itemX = QTableWidgetItem(str(coord[0]))
-                        itemY = QTableWidgetItem(str(coord[1]))
-                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
-                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
-                        i = i + 1
-                cpt = cpt + 1
-            
-            f.close()
+        # charge le tableau
+        self.dockwidget.tableCoordFeu = util_table.charge(uriSL, self.dockwidget.tableCoordFeu)
             
         # On synchronize layer-fichier
         self.synchronize()
