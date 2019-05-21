@@ -142,7 +142,7 @@ class ParcoursGrille:
         icon_path = ':/plugins/PoussePousseEditData/img/logoPoussePousseEditData.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Panneau des outils pour la saisie et la validation des données'),
+            text=self.tr(u'Panneau des outils pour la saisie, le contrôle et la validation des données'),
             callback=self.InitPoussePousse,
             parent=self.iface.mainWindow())
         
@@ -251,10 +251,15 @@ class ParcoursGrille:
                 self.dockwidget.btSynchronize.clicked.connect(self.synchronize)
                 self.dockwidget.btZoomGrille.clicked.connect(self.zoomEmprise)
                 self.dockwidget.btViderFichier.clicked.connect(self.raz)
-                self.dockwidget.btValider.clicked.connect(self.valider)
+                self.dockwidget.btControler.clicked.connect(self.controler)
                 
                 self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
                 self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
+                
+                self.dockwidget.fileControleCSV.setDisabled(True)
+                self.dockwidget.fileControleCSV.setText('')
+                
+                self.dockwidget.btValider.setDisabled(True)
                 
         self.iface.mapCanvas().refresh()
                 
@@ -332,36 +337,21 @@ class ParcoursGrille:
         # ====================================================
         #    Layer
         #
-        layerStopLine = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'PointsASaisir'):
-                    layerStopLine = layer
+        layerStopLine = util_layer.getLayer('PointsASaisir')
         
         if layerStopLine == None:
             # creation du layer point
             proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
             if hasattr(self, 'projGrille') and self.projGrille != None:
                 proj = self.projGrille
-            layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsASaisir", "memory")
-            
-            # Style
-            # Symbologie des stations
-            symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,127,0'})
-            symbolPoint.setColor(QColor.fromRgb(216,7,96))  #F 216,7,96
-            symbolPoint.setSize(3)
-            layerStopLine.rendererV2().setSymbol(symbolPoint)
+            layerStopLine = util_layer.createLayerPoint(proj)
             
             # La couche est creee , il faut l'ajouter a l'interface
             QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
             
         else:
             # le layer existe, on supprime les features
-            layerStopLine.startEditing()
-            for feature in layerStopLine.getFeatures():
-                layerStopLine.deleteFeature(feature.id())
-            layerStopLine.commitChanges()
+            layerStopLine = util_layer.removeAllFeature(layerStopLine)
             
 
         # On passe le layer aux outils click
@@ -585,7 +575,7 @@ class ParcoursGrille:
             f.close()
             
     
-    def valider(self):
+    def controler(self):
         
         # popup
         # show the dialog
@@ -604,6 +594,7 @@ class ParcoursGrille:
         
         
             layerStopLine = util_layer.getLayer('PointsASaisir')
+            featuresPointEnvConvexe = layerStopLine.getFeatures()
             layerGrille = util_layer.getLayer('Grille')
         
             # On supprime le layer
@@ -613,12 +604,13 @@ class ParcoursGrille:
             # On crée un nouveau fichier
             uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
             head, tail = os.path.split(uriSL)
-            # on cree le fichier
-            tps = time.strftime("%Y_%m_%d_%H_%M_%S")
-            chemin = head + '\\validation_' + tps + '.dat'
+            tps = time.strftime("%Y%m%d_%H%M%S")
+            chemin = head + '\\ctrl_' + tps + '.dat'
             f = open(chemin, "w+")
             f.write('x,y' + '\n')
             f.close()
+            
+            self.dockwidget.fileControleCSV.setText(chemin)
             
             uriSL = chemin
             
@@ -673,7 +665,7 @@ class ParcoursGrille:
                 # Symbologie des stations
                 symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
                 symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
-                symbolPoint.setSize(3)
+                symbolPoint.setSize(2)
                 layerStopLine.rendererV2().setSymbol(symbolPoint)
                 
                 # La couche est creee , il faut l'ajouter a l'interface
@@ -687,7 +679,11 @@ class ParcoursGrille:
             self.featureToolDelete.setLayer(layerStopLine)
             self.featureToolDelete.setUrl(uriSL)
         
-        
+            # =============================================================
+            # Validation
+            self.dockwidget.btValider.setDisabled(False)
+            
+            # ====================================================
             # ----------------------------------------------------------
             r = 10
             N = int(self.dlg.editNbCellTirage.text())
@@ -703,7 +699,18 @@ class ParcoursGrille:
             ny = self.ny
             r = self.r
             
-            T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]])
+            # Mode du tirage
+            if self.dlg.radioEmprise.isChecked():
+                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]])
+            elif self.dlg.radioEnvConvexe.isChecked():
+                tabdonnee = []
+                for feature in featuresPointEnvConvexe:
+                    geom = feature.geometry()
+                    x = geom.asPoint().x()
+                    y = geom.asPoint().y()
+                    tabdonnee.append([x,y])   
+                # print (ny)
+                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, tabdonnee)
             # print (T)
             
             # ----------------------------------------------------------------------------
@@ -721,6 +728,7 @@ class ParcoursGrille:
             
             props3 = {'color': '180,180,180', 'size':'1', 'color_border' : '180,180,180', 'width_border':'1'}
             symbol3 = QgsFillSymbolV2.createSimple(props3)
+            symbol3.setAlpha(0.70)
             
             categories = []
             for feature in layerGrille.getFeatures():
@@ -729,6 +737,7 @@ class ParcoursGrille:
                 # est-ce que tire ?
                 tire = False
                 for (i,j) in T:
+                    j = ny - j
                     encours = (i ) * nx + j
                     
                     if encours == int(id):

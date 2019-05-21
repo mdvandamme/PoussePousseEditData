@@ -2,12 +2,12 @@ import random
 import matplotlib.pyplot as plt
 
 
+
 def column(matrix, i):
     return [row[i] for row in matrix]
 	
 
 def right(a,b,c):
-
 	return ((a == c) or (b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]) < 0)
             
     
@@ -17,17 +17,16 @@ def convexHull(T):
 	H = [X.index(min(X))]
 
 	while((len(H) < 3) or (H[-1] != H[0])):
-
 		H.append(0)
-
 		for i in range(len(T)):
 			if not (right(T[H[-2]], T[H[-1]], T[i])):
 				H[-1] = i
     
 	return (H)
+
 	
 def getCellVerticesX(xmin, r, ix):
-	return [xmin+r*ix, xmin+r*(ix+1), xmin+r*(ix+1), xmin+r*ix, xmin+r*ix]
+	return [xmin + r*ix, xmin + r*(ix+1), xmin + r*(ix+1), xmin + r*ix, xmin + r*ix]
 	
 def getCellVerticesY(ymin, r, iy):
 	return [ymin+r*iy, ymin+r*iy, ymin+r*(iy+1), ymin+r*(iy+1), ymin+r*iy]
@@ -183,7 +182,7 @@ def sampleInConvexHull(xmin, ymin, nx, ny, r, N, T):
 	X = column(T,0)
 	Y = column(T,1)
 	
-	if (N > 0.5*nx*ny):
+	if (N > 0.5 * nx * ny):
 		print("Erreur : N est superieur a 50% du nombre de cellules")
 		return 1
 	

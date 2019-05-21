@@ -12,8 +12,9 @@
 
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
 from qgis.core import QgsVectorLayer, QgsMapLayer, QgsMapLayerRegistry
-from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2
+from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbolV2
 
+from PyQt4.QtGui import QColor
 
 def getLayer(nom):
     
@@ -29,7 +30,12 @@ def getLayer(nom):
     return layerATrouver 
                 
 
-
+def removeAllFeature(layer):
+    layer.startEditing()
+    for feature in layer.getFeatures():
+        layer.deleteFeature(feature.id())
+    layer.commitChanges()
+    return layer
 
 def removeFeature(layer, indice):
     """
@@ -78,6 +84,20 @@ def createLayerGrille(uriGrille):
     layerGrille.setRendererV2(QgsSingleSymbolRendererV2(s))
     
     return layerGrille
+
+
+def createLayerPoint(proj):
+    
+    layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsASaisir", "memory")
+            
+    # Style
+    # Symbologie des stations
+    symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,127,0'})
+    symbolPoint.setColor(QColor.fromRgb(216,7,96))  #F 216,7,96
+    symbolPoint.setSize(2)
+    layerStopLine.rendererV2().setSymbol(symbolPoint)
+    
+    return layerStopLine
 
 
 def zoomFeature(iface, layer, currId):
