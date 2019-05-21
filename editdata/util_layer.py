@@ -17,7 +17,6 @@ from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbo
 from PyQt4.QtGui import QColor
 
 def getLayer(nom):
-    
     # Layer a retourner
     layerATrouver = None
     
@@ -31,11 +30,13 @@ def getLayer(nom):
                 
 
 def removeAllFeature(layer):
-    layer.startEditing()
-    for feature in layer.getFeatures():
-        layer.deleteFeature(feature.id())
-    layer.commitChanges()
+    if layer != None:
+        layer.startEditing()
+        for feature in layer.getFeatures():
+            layer.deleteFeature(feature.id())
+            layer.commitChanges()
     return layer
+
 
 def removeFeature(layer, indice):
     """

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
+    <width>374</width>
     <height>675</height>
    </rect>
   </property>
@@ -310,7 +310,10 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="btValider">
+   <widget class="QPushButton" name="btCheck">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>20</x>

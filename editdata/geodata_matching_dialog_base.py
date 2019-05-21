@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geodata_matching_dialog_base.ui'
 #
-# Created: Tue May 21 17:30:25 2019
+# Created: Tue May 21 18:04:37 2019
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_DockWidget(object):
     def setupUi(self, DockWidget):
         DockWidget.setObjectName(_fromUtf8("DockWidget"))
-        DockWidget.resize(373, 675)
+        DockWidget.resize(374, 675)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(150)
@@ -114,9 +114,10 @@ class Ui_DockWidget(object):
         self.fileControleCSV.setEnabled(False)
         self.fileControleCSV.setGeometry(QtCore.QRect(80, 240, 251, 20))
         self.fileControleCSV.setObjectName(_fromUtf8("fileControleCSV"))
-        self.btValider = QtGui.QPushButton(self.dockWidgetContents)
-        self.btValider.setGeometry(QtCore.QRect(20, 600, 321, 23))
-        self.btValider.setObjectName(_fromUtf8("btValider"))
+        self.btCheck = QtGui.QPushButton(self.dockWidgetContents)
+        self.btCheck.setEnabled(False)
+        self.btCheck.setGeometry(QtCore.QRect(20, 600, 321, 23))
+        self.btCheck.setObjectName(_fromUtf8("btCheck"))
         DockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(DockWidget)
@@ -138,6 +139,6 @@ class Ui_DockWidget(object):
         self.btControler.setText(_translate("DockWidget", "Contrôler la saisie", None))
         self.label_6.setText(_translate("DockWidget", "Vue sur le fichier en cours:", None))
         self.label_7.setText(_translate("DockWidget", "Contrôle CSV:", None))
-        self.btValider.setText(_translate("DockWidget", "Valider", None))
+        self.btCheck.setText(_translate("DockWidget", "Valider", None))
 
 from qgis.gui import QgsFileWidget

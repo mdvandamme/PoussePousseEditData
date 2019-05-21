@@ -236,9 +236,6 @@ class ParcoursGrille:
                     self.dockwidget.tableCoordFeu.setRowCount(0)
                     self.dockwidget.tableCoordFeu.setColumnCount(0)
                 
-                # Gestion des fichiers
-                # self.dockwidget.feuFilename.setDisabled(True);
-                
                 # Gestion du tableau
                 self.featureToolAdd.setTable(self.dockwidget.tableCoordFeu)
                 self.featureToolDelete.setTable(self.dockwidget.tableCoordFeu)
@@ -259,7 +256,7 @@ class ParcoursGrille:
                 self.dockwidget.fileControleCSV.setDisabled(True)
                 self.dockwidget.fileControleCSV.setText('')
                 
-                self.dockwidget.btValider.setDisabled(True)
+                self.dockwidget.btCheck.setDisabled(True)
                 
         self.iface.mapCanvas().refresh()
                 
@@ -289,29 +286,23 @@ class ParcoursGrille:
         # print (uriGrille)
         
         # print (uri)
-        layerGrille = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
-                    layerGrille = layer
-       
+        layerGrille = util_layer.getLayer('Grille')
         if layerGrille == None:
             layerGrille = util_layer.createLayerGrille(uriGrille)
         
         # Projection pour la construction des autres layers
-        self.projGrille = layerGrille.crs().authid()
-
-        # On intialise les variables de grandeur de la grille
-        self.init_param_grille()
+#        self.projGrille = layerGrille.crs().authid()
+#
+#        # On intialise les variables de grandeur de la grille
+#        self.init_param_grille()
         
         # On enregistre le chemin dans les settings
         self.settings('grille', uriGrille)
         
-        self.goTo("0")
-
-        self.zoomEmprise()
-        self.iface.mapCanvas().refresh();
+#        self.goTo("0")
+#
+#        self.zoomEmprise()
+#        self.iface.mapCanvas().refresh();
         
         
         
@@ -337,21 +328,21 @@ class ParcoursGrille:
         # ====================================================
         #    Layer
         #
-        layerStopLine = util_layer.getLayer('PointsASaisir')
-        
-        if layerStopLine == None:
-            # creation du layer point
-            proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
-            if hasattr(self, 'projGrille') and self.projGrille != None:
-                proj = self.projGrille
-            layerStopLine = util_layer.createLayerPoint(proj)
-            
-            # La couche est creee , il faut l'ajouter a l'interface
-            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
-            
-        else:
-            # le layer existe, on supprime les features
-            layerStopLine = util_layer.removeAllFeature(layerStopLine)
+#        layerStopLine = util_layer.getLayer('PointsASaisir')
+#        
+#        if layerStopLine == None:
+#            # creation du layer point
+#            proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
+#            if hasattr(self, 'projGrille') and self.projGrille != None:
+#                proj = self.projGrille
+#            layerStopLine = util_layer.createLayerPoint(proj)
+#            
+#            # La couche est creee , il faut l'ajouter a l'interface
+#            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
+#            
+#        else:
+#            # le layer existe, on supprime les features
+#            layerStopLine = util_layer.removeAllFeature(layerStopLine)
             
 
         # On passe le layer aux outils click
@@ -591,6 +582,7 @@ class ParcoursGrille:
             self.dockwidget.fileOuvrirInventaireCSV.setDisabled(True)
             self.dockwidget.btSynchronize.setDisabled(True)
             self.dockwidget.btViderFichier.setDisabled(True)
+            self.dockwidget.btCheck.setDisabled(False)
         
         
             layerStopLine = util_layer.getLayer('PointsASaisir')
@@ -679,9 +671,6 @@ class ParcoursGrille:
             self.featureToolDelete.setLayer(layerStopLine)
             self.featureToolDelete.setUrl(uriSL)
         
-            # =============================================================
-            # Validation
-            self.dockwidget.btValider.setDisabled(False)
             
             # ====================================================
             # ----------------------------------------------------------
