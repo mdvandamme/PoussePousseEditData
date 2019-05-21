@@ -47,7 +47,7 @@ import time
 # Tirage des points
 import sampleConvexHull as tirage
 
-# import util_layer
+from editdata import util_layer
 # import util_io
 # import util_table
 
@@ -226,10 +226,8 @@ class ParcoursGrille:
                                 self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
                                 self.importInventaireCSV()
                                 trouve = True
-                                
-                                
                             
-                    f.close()
+                        f.close()
         
                 # On initialise la cellule de démarrage
                 self.dockwidget.currentId.setText("0")
@@ -286,24 +284,19 @@ class ParcoursGrille:
         # print (uriGrille)
         
         # print (uri)
-#        layerGrille = None
-#        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-#        for layer in layers:
-#            if layer.type() == QgsMapLayer.VectorLayer:
-#                if (layer.name() == 'Grille'):
-#                    layerGrille = layer
+        layerGrille = None
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if (layer.name() == 'Grille'):
+                    layerGrille = layer
+       
+        if layerGrille == None:
+            layerGrille = util_layer.createLayerGrille(uriGrille)
         
-#        if layerGrille == None:
-        layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
-        QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
-        
+        # Projection pour la construction des autres layers
         self.projGrille = layerGrille.crs().authid()
 
-        # Style 
-        props = {'color': '241,241,241,0', 'size':'1', 'color_border' : '255,0,0'}
-        s = QgsFillSymbolV2.createSimple(props)
-        layerGrille.setRendererV2(QgsSingleSymbolRendererV2(s))
-        
         # On intialise les variables de grandeur de la grille
         self.init_param_grille()
         
@@ -516,15 +509,9 @@ class ParcoursGrille:
                     layerGrille = layer
         
         if layerGrille != None:
-            # On parcours les index jusqu'à celui qu'on a 
-            for feature in layerGrille.getFeatures():
-                id = feature.attributes()[0]
-                if str(id) == currId:
-                    # zoom sur la couche
-                    layerGrille.setSelectedFeatures([id])
-                    self.iface.mapCanvas().zoomToSelected(layerGrille)
-                    self.iface.mapCanvas().refresh();
-                    layerGrille.setSelectedFeatures([]);
+            # zoom sur la cellule
+            util_layer.zoomFeature(self.iface, layerGrille, currId)
+            
             
             # On change le focus si saisie
             changeFocus = True
