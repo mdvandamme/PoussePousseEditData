@@ -446,6 +446,7 @@ class ParcoursGrille:
         # print (idList)
         
     
+    
     def doSuivant(self):
         
         # On recupere l'id en cours
@@ -524,13 +525,7 @@ class ParcoursGrille:
         
         # ====================================================
         #    Layer
-        #
-        layerStopLine = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'PointsASaisir'):
-                    layerStopLine = layer
+        layerStopLine = util_layer.getLayer('PointsASaisir')
     
         # On supprime les features du layer
         # pr = layerStopLine.dataProvider()
@@ -592,112 +587,108 @@ class ParcoursGrille:
     
     def valider(self):
         
-        # On désactive le fichier d'inventaire
-        self.dockwidget.fileOuvrirInventaireCSV.setDisabled(True)
-        self.dockwidget.btSynchronize.setDisabled(True)
-        self.dockwidget.btViderFichier.setDisabled(True)
-        
-        # On supprime le layer
-        layerStopLine = None
-        layerGrille = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'PointsASaisir'):
-                    layerStopLine = layer
-                if layer.name() == 'Grille':
-                    layerGrille = layer
-        
-        if layerStopLine != None:
-            QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
-        
-        # On crée un nouveau fichier
-        # on cree le fichier
-        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-        head, tail = os.path.split(uriSL)
-        
-        tps = time.strftime("%Y_%m_%d_%H_%M_%S")
-        chemin = head + '\\validation_' + tps + '.dat'
-        f = open(chemin, "w+")
-        f.write('x,y' + '\n')
-        f.close()
-        
-        uriSL = chemin
-        
-        # Vider le tableau
-        with open(uriSL) as f:
-            i = 0
-            num_lines = sum(1 for line in open(uriSL))
-            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
-            
-            cpt = 0
-            for line in f:
-                if cpt == 0:
-                    # Ligne d'entete
-                    entetes = line.strip().split(",")
-                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
-                    colHearder = []
-                    for j in range(len(entetes)):
-                        nom = entetes[j]
-                        colHearder.append(nom)
-                    self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
-                else:
-                    coord = line.strip().split(",")
-                    if len(coord) > 1:
-                        itemX = QTableWidgetItem(str(coord[0]))
-                        itemY = QTableWidgetItem(str(coord[1]))
-                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
-                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
-                        i = i + 1
-                cpt = cpt + 1
-            
-            f.close()
-            
-        # On cree un layer de validation
-        # ====================================================
-        #    Layer
-        #
-        layerStopLine = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'PointsAControler'):
-                    layerStopLine = layer
-        
-        if layerStopLine == None:
-            # creation du layer point
-            proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
-            if hasattr(self, 'projGrille') and self.projGrille != None:
-                proj = self.projGrille
-            layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
-            
-            # Style
-            # Symbologie des stations
-            symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
-            symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
-            symbolPoint.setSize(3)
-            layerStopLine.rendererV2().setSymbol(symbolPoint)
-            
-            # La couche est creee , il faut l'ajouter a l'interface
-            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
-            
-            
-        # On passe le chemin et le layer a l'outil de saisie
-        self.featureToolAdd.setLayer(layerStopLine)
-        self.featureToolAdd.setUrl(uriSL)
-        
-        self.featureToolDelete.setLayer(layerStopLine)
-        self.featureToolDelete.setUrl(uriSL)
-        
         # popup
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
         
+        # ==============================================================================
         # See if OK was pressed
         if result:
             
+            # On désactive le fichier d'inventaire
+            self.dockwidget.fileOuvrirInventaireCSV.setDisabled(True)
+            self.dockwidget.btSynchronize.setDisabled(True)
+            self.dockwidget.btViderFichier.setDisabled(True)
+        
+        
+            layerStopLine = util_layer.getLayer('PointsASaisir')
+            layerGrille = util_layer.getLayer('Grille')
+        
+            # On supprime le layer
+            if layerStopLine != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+        
+            # On crée un nouveau fichier
+            uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+            head, tail = os.path.split(uriSL)
+            # on cree le fichier
+            tps = time.strftime("%Y_%m_%d_%H_%M_%S")
+            chemin = head + '\\validation_' + tps + '.dat'
+            f = open(chemin, "w+")
+            f.write('x,y' + '\n')
+            f.close()
+            
+            uriSL = chemin
+            
+            # Vider le tableau
+            with open(uriSL) as f:
+                i = 0
+                num_lines = sum(1 for line in open(uriSL))
+                self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
+                
+                cpt = 0
+                for line in f:
+                    if cpt == 0:
+                        # Ligne d'entete
+                        entetes = line.strip().split(",")
+                        self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
+                        colHearder = []
+                        for j in range(len(entetes)):
+                            nom = entetes[j]
+                            colHearder.append(nom)
+                        self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
+                    else:
+                        coord = line.strip().split(",")
+                        if len(coord) > 1:
+                            itemX = QTableWidgetItem(str(coord[0]))
+                            itemY = QTableWidgetItem(str(coord[1]))
+                            self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
+                            self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
+                            i = i + 1
+                    cpt = cpt + 1
+                
+                f.close()
+                
+            # On cree un layer de validation
+            # ====================================================
+            #    Layer
+            #
+            layerStopLine = None
+            layers = QgsMapLayerRegistry.instance().mapLayers().values()
+            for layer in layers:
+                if layer.type() == QgsMapLayer.VectorLayer:
+                    if (layer.name() == 'PointsAControler'):
+                        layerStopLine = layer
+            
+            if layerStopLine == None:
+                # creation du layer point
+                proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
+                if hasattr(self, 'projGrille') and self.projGrille != None:
+                    proj = self.projGrille
+                layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
+                
+                # Style
+                # Symbologie des stations
+                symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
+                symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
+                symbolPoint.setSize(3)
+                layerStopLine.rendererV2().setSymbol(symbolPoint)
+                
+                # La couche est creee , il faut l'ajouter a l'interface
+                QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
+                
+            
+            # On passe le chemin et le layer a l'outil de saisie
+            self.featureToolAdd.setLayer(layerStopLine)
+            self.featureToolAdd.setUrl(uriSL)
+            
+            self.featureToolDelete.setLayer(layerStopLine)
+            self.featureToolDelete.setUrl(uriSL)
+        
+        
+            # ----------------------------------------------------------
             r = 10
             N = int(self.dlg.editNbCellTirage.text())
             #print (nbCell)

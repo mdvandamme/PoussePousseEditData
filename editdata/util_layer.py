@@ -11,8 +11,25 @@
 """
 
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry
+from qgis.core import QgsVectorLayer, QgsMapLayer, QgsMapLayerRegistry
 from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2
+
+
+def getLayer(nom):
+    
+    # Layer a retourner
+    layerATrouver = None
+    
+    layers = QgsMapLayerRegistry.instance().mapLayers().values()
+    for layer in layers:
+        if layer.type() == QgsMapLayer.VectorLayer:
+            if (layer.name() == nom):
+                layerATrouver = layer
+    
+    return layerATrouver 
+                
+
+
 
 def removeFeature(layer, indice):
     """

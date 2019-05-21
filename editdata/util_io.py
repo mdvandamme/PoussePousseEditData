@@ -40,3 +40,4 @@ def addLigne(urlfic, x, y):
     with open(urlfic, 'a') as file:
         file.write(str(x) + ',' + str(y) + '\n')
         file.close()
+        
