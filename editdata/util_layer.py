@@ -102,6 +102,20 @@ def createLayerPoint(proj):
     return layerStopLine
 
 
+def createLayerControle(proj):
+    
+    layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
+                
+    # Style
+    # Symbologie des stations
+    symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
+    symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
+    symbolPoint.setSize(2)
+    layerStopLine.rendererV2().setSymbol(symbolPoint)
+    
+    return layerStopLine
+
+
 def zoomFeature(iface, layer, currId):
     # On parcours les index jusqu'à celui qu'on a 
     for feature in layer.getFeatures():

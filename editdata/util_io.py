@@ -11,7 +11,8 @@
 
 """
 
-#import os
+import os
+import time
 
 
 def suppLigne(urlfic, indice):
@@ -57,6 +58,19 @@ def addLigne(urlfic, x, y):
     with open(urlfic, 'a') as file:
         file.write(str(x) + ',' + str(y) + '\n')
         file.close()
+
+
+def createFicControle(uriSL):
+    
+    head, tail = os.path.split(uriSL)
+    tps = time.strftime("%Y%m%d_%H%M%S")
+    chemin = head + '\\ctrl_' + tps + '.dat'
+    f = open(chemin, "w+")
+    f.write('x,y' + '\n')
+    f.close()
+    
+    return chemin
+
 
 
 def createSettingsFile(uriSettings):

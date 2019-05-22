@@ -166,45 +166,49 @@ def intersects(segment1, segment2):
 # ---------------------------------------------------
 def sampleInConvexHull(xmin, ymin, nx, ny, r, N, T):
 
-	plt.axis([xmin,xmin+nx*r,ymin,ymin+ny*r])
+    
+    plt.axis([xmin,xmin+nx*r,ymin,ymin+ny*r])
 
-	H = convexHull(T)
+    H = convexHull(T)
 
-	n = len(T)
-	X = column(T,0)
-	Y = column(T,1)
+    n = len(T)
+    X = column(T,0)
+    Y = column(T,1)
 	
-	if (N > 0.5 * nx * ny):
-		print("Erreur : N est superieur a 50% du nombre de cellules")
-		return 1
+    if (N > 0.5 * nx * ny):
+        print("Erreur : N est superieur a 50% du nombre de cellules")
+        return 1
 	
-	XC = [X[i] for i in H]
-	YC = [Y[i] for i in H]
+    XC = [X[i] for i in H]
+    YC = [Y[i] for i in H]
 	
-	hull = [val for pair in zip(XC, YC) for val in pair]
+    hull = [val for pair in zip(XC, YC) for val in pair]
+
+    cpt = 0
+    I = list()
+    while(len(I) < N):
+        cpt = cpt + 1
+        if cpt > 5:
+            break
+        while(len(I) < 1.5*N):
 	
-	I = list()
-	
-	while(len(I) < N):
-		while(len(I) < 1.5*N):
-	
-			ix = random.sample(range(nx), 1)[0]
-			iy = random.sample(range(ny), 1)[0]
-			xc = getCellVerticesX(xmin, r, ix)
-			yc = getCellVerticesY(ymin, r, iy)
+            ix = random.sample(range(nx), 1)[0]
+            iy = random.sample(range(ny), 1)[0]
+            xc = getCellVerticesX(xmin, r, ix)
+            yc = getCellVerticesY(ymin, r, iy)
 		
-			for i in range(4):
-				if inclusion(hull, xc[i], yc[i]):
-					I.append((ix,iy))
-					break
+            for i in range(4):
+                if inclusion(hull, xc[i], yc[i]):
+                    I.append((ix,iy))
+                    break
 			
-		I = list(dict.fromkeys(I))
+        I = list(dict.fromkeys(I))
 		
-	if (len(I) > N):
-		I = [I[i] for i in range(N)]
+    if (len(I) > N):
+        I = [I[i] for i in range(N)]
 
 	
-	return I
+    return I
 		
 		
 		
@@ -215,8 +219,8 @@ def test():
 	r = 2
 	nx = 40
 	ny = 30
-	npts = 20
-	N = 500
+	npts = 3
+	N = 599
 
 	xmax = xmin+r*nx
 	ymax = ymin+r*ny
@@ -252,4 +256,4 @@ def test():
 
 	plt.show()
 	
-# test()
+#test()

@@ -23,13 +23,11 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
-from PyQt4.QtGui import QAction, QIcon, QTableWidgetItem, QColor
+from PyQt4.QtGui import QAction, QIcon
 
-from qgis.core import QgsVectorLayer, QgsMapLayer
+from qgis.core import QgsMapLayer
 from qgis.core import QgsMapLayerRegistry
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
-
-from qgis.core import QgsMarkerSymbolV2
 
 # Initialize Qt resources from file resources.py
 from resources import resources
@@ -41,7 +39,6 @@ from editdata.feature_tool_add import FeatureToolAdd
 from editdata.feature_tool_delete import FeatureToolDelete
 
 import os.path
-import time
 
 # Tirage des points
 import sampleConvexHull as tirage
@@ -531,76 +528,37 @@ class ParcoursGrille:
             featuresPointEnvConvexe = layerStopLine.getFeatures()
             layerGrille = util_layer.getLayer('Grille')
         
+            # -----------------------------------------------------------------
             # On supprime le layer
             if layerStopLine != None:
                 QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
         
+            # -----------------------------------------------------------------
             # On crée un nouveau fichier
             uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-            head, tail = os.path.split(uriSL)
-            tps = time.strftime("%Y%m%d_%H%M%S")
-            chemin = head + '\\ctrl_' + tps + '.dat'
-            f = open(chemin, "w+")
-            f.write('x,y' + '\n')
-            f.close()
+            chemin = util_io.createFicControle(uriSL)
             
             self.dockwidget.fileControleCSV.setText(chemin)
             
             uriSL = chemin
             
+            # -----------------------------------------------------------------
             # Vider le tableau
-            with open(uriSL) as f:
-                i = 0
-                num_lines = sum(1 for line in open(uriSL))
-                self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
-                
-                cpt = 0
-                for line in f:
-                    if cpt == 0:
-                        # Ligne d'entete
-                        entetes = line.strip().split(",")
-                        self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
-                        colHearder = []
-                        for j in range(len(entetes)):
-                            nom = entetes[j]
-                            colHearder.append(nom)
-                        self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
-                    else:
-                        coord = line.strip().split(",")
-                        if len(coord) > 1:
-                            itemX = QTableWidgetItem(str(coord[0]))
-                            itemY = QTableWidgetItem(str(coord[1]))
-                            self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
-                            self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
-                            i = i + 1
-                    cpt = cpt + 1
-                
-                f.close()
-                
-            # On cree un layer de validation
-            # ====================================================
+            util_table.charge(uriSL, self.dockwidget.tableCoordFeu)
+
+            
+            # -----------------------------------------------------------------
             #    Layer
-            #
-            layerStopLine = None
-            layers = QgsMapLayerRegistry.instance().mapLayers().values()
-            for layer in layers:
-                if layer.type() == QgsMapLayer.VectorLayer:
-                    if (layer.name() == 'PointsAControler'):
-                        layerStopLine = layer
+            # On cree un layer de validation
+            layerStopLine = util_layer.getLayer('PointsAControler')
             
             if layerStopLine == None:
                 # creation du layer point
                 proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
                 if hasattr(self, 'projGrille') and self.projGrille != None:
                     proj = self.projGrille
-                layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
                 
-                # Style
-                # Symbologie des stations
-                symbolPoint = QgsMarkerSymbolV2.createSimple({'name': 'square', 'color_border': '255,216,0'})
-                symbolPoint.setColor(QColor.fromRgb(255,216,0))  #F 216,7,96
-                symbolPoint.setSize(2)
-                layerStopLine.rendererV2().setSymbol(symbolPoint)
+                layerStopLine = util_layer.createLayerControle(proj)
                 
                 # La couche est creee , il faut l'ajouter a l'interface
                 QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
@@ -616,7 +574,7 @@ class ParcoursGrille:
             
             # ====================================================
             # ----------------------------------------------------------
-            r = 10
+            r = self.r
             N = int(self.dlg.editNbCellTirage.text())
             #print (nbCell)
             
@@ -628,11 +586,13 @@ class ParcoursGrille:
             nx = self.nx
             # print ('nx=' + str(nx))
             ny = self.ny
-            r = self.r
+            
             
             # Mode du tirage
             if self.dlg.radioEmprise.isChecked():
-                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]])
+                tabdonnee = [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]]
+                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, tabdonnee)
+            
             elif self.dlg.radioEnvConvexe.isChecked():
                 tabdonnee = []
                 for feature in featuresPointEnvConvexe:
@@ -640,33 +600,32 @@ class ParcoursGrille:
                     x = geom.asPoint().x()
                     y = geom.asPoint().y()
                     tabdonnee.append([x,y])   
-                # print (ny)
                 T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, tabdonnee)
             # print (T)
             
             # ----------------------------------------------------------------------------
             # On change le parcours
             self.idList = []
-            
-            # -----------------------------------------------------------------------------
-            #    Style layer
             for feature in layerGrille.getFeatures():
                 id = feature.attributes()[0]
                 
                 # est-ce que tire ?
                 tire = False
                 for (i,j) in T:
-                    j = ny - j
-                    encours = (i ) * nx + j
+                    # j = ny - j
+                    # i = nx - i - 1
+                    # idT = (nx - j - 1) * ny + i
+                    idT = (ny - j - 1) * nx + i
                     
-                    if encours == int(id):
+                    if idT == int(id):
                         tire = True
                 
                 if tire:
                     self.idList.append(int(id))
             # print (self.idList)
 
-
+            # ----------------------------------------------------------------------------
+            #  Style de la grille de controle
             layerGrille = util_layer.setStyleGrilleControle(layerGrille, self.idList)
             
             
