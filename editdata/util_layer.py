@@ -36,7 +36,7 @@ def removeAllFeature(layer):
         layer.startEditing()
         for feature in layer.getFeatures():
             layer.deleteFeature(feature.id())
-            layer.commitChanges()
+        layer.commitChanges()
     return layer
 
 

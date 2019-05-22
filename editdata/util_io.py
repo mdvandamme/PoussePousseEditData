@@ -11,7 +11,7 @@
 
 """
 
-import os
+#import os
 
 
 def suppLigne(urlfic, indice):
@@ -35,7 +35,23 @@ def suppLigne(urlfic, indice):
         for line in lignesAGarder:
             file.write(line)
         file.close()
+
+
+def suppLignePoint(urlfic):
+    
+    txtEntete = ''
+    with open(urlfic, 'r') as file:
+        for line in file:
+            txtEntete = line
+            break
+        file.close()
             
+    # On vide le fichier
+    with open(urlfic, "w") as file:
+        file.write(txtEntete)
+        file.close()
+
+
 
 def addLigne(urlfic, x, y):
     with open(urlfic, 'a') as file:

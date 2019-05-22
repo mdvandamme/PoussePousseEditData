@@ -29,8 +29,7 @@ from qgis.core import QgsVectorLayer, QgsMapLayer
 from qgis.core import QgsMapLayerRegistry
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
 
-from qgis.core import QgsFillSymbolV2, QgsMarkerSymbolV2
-from qgis.core import QgsRendererCategoryV2, QgsCategorizedSymbolRendererV2
+from qgis.core import QgsMarkerSymbolV2
 
 # Initialize Qt resources from file resources.py
 from resources import resources
@@ -319,10 +318,17 @@ class ParcoursGrille:
         # On synchronize layer-fichier
         self.synchronize()
         
+        
     
     def synchronize(self):
+        
+        """
+            Tableau est deja chargé
+            On prend les infos du fichier vers le layer
+        """
+        
         # ====================================================
-        #    Layer
+        #    Layer: creer ou supprimer les features
         #
         layerStopLine = util_layer.getLayer('PointsASaisir')
         
@@ -340,17 +346,12 @@ class ParcoursGrille:
             # le layer existe, on supprime les features
             layerStopLine = util_layer.removeAllFeature(layerStopLine)
             
-
-        # On passe le layer aux outils click
-        self.featureToolAdd.setLayer(layerStopLine)
+            
+        # ====================================================
+        #   On synchronise avec le fichier
+        #
         uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-        self.featureToolAdd.setUrl(uriSL)
         
-        self.featureToolDelete.setLayer(layerStopLine)
-        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-        self.featureToolDelete.setUrl(uriSL)
-        
-        # On synchronise avec le fichier
         cpt = 0
         layerStopLine.startEditing()
         pr = layerStopLine.dataProvider()
@@ -366,6 +367,15 @@ class ParcoursGrille:
                 cpt = cpt + 1
         layerStopLine.commitChanges() 
         
+        # ====================================================
+        # On passe le layer aux outils click
+        self.featureToolAdd.setLayer(layerStopLine)
+        self.featureToolDelete.setLayer(layerStopLine)
+        
+        self.featureToolAdd.setUrl(uriSL)
+        self.featureToolDelete.setUrl(uriSL)
+        
+        # ====================================================
         # On rafraichit le canvas
         self.iface.mapCanvas().refresh();
         
@@ -401,6 +411,7 @@ class ParcoursGrille:
         # Nombre de cellule par colonne
         nb = layerGrille.featureCount()
         # print (nb)
+        # Nombre de cellule par colonne
         self.ny = nb / self.nx
         
         # On permutte toutes les nCell de x
@@ -428,6 +439,7 @@ class ParcoursGrille:
         for i in range(len(self.idList)):
             if (self.idList[i] == int(currId)):
                 newindex = i
+        
         if (newindex < (len(self.idList) - 1)):
             # incremente au suivant
             nextId = self.idList[newindex + 1]
@@ -466,70 +478,34 @@ class ParcoursGrille:
         #        
         self.iface.mapCanvas().refresh();
             
+        
     
     def raz(self):
+        """
+        Vider le fichier des points saisis
+        """
         
         # ====================================================
         #    Layer
         layerStopLine = util_layer.getLayer('PointsASaisir')
     
         # On supprime les features du layer
-        # pr = layerStopLine.dataProvider()
-        layerStopLine.startEditing()
-            
-        for feat in layerStopLine.getFeatures():
-            layerStopLine.deleteFeature(feat.id())
-            
-        # commit to stop editing the layer
-        layerStopLine.commitChanges()
+        layerStopLine = util_layer.removeAllFeature(layerStopLine)
         
         
         # ====================================================
         #    Fichier
         #
-        # On recupere la ligne d'entete
         uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
-        txtEntete = ''
-        with open(uriSL, 'r') as file:
-            for line in file:
-                txtEntete = line
-                break
-            file.close()
+        util_io.suppLignePoint(uriSL)
             
-        # On vide le fichier
-        with open(uriSL, "w") as file:
-            file.write(txtEntete)
-            file.close()
-            
+        
+        # ====================================================
+        #    Tableau
         #
-        with open(uriSL) as f:
-            i = 0
-            num_lines = sum(1 for line in open(uriSL))
-            self.dockwidget.tableCoordFeu.setRowCount(num_lines - 1);
+        self.dockwidget.tableCoordFeu = util_table.charge(uriSL, self.dockwidget.tableCoordFeu)
             
-            cpt = 0
-            for line in f:
-                if cpt == 0:
-                    # Ligne d'entete
-                    entetes = line.strip().split(",")
-                    self.dockwidget.tableCoordFeu.setColumnCount(len(entetes));
-                    colHearder = []
-                    for j in range(len(entetes)):
-                        nom = entetes[j]
-                        colHearder.append(nom)
-                    self.dockwidget.tableCoordFeu.setHorizontalHeaderLabels(colHearder)
-                else:
-                    coord = line.strip().split(",")
-                    if len(coord) > 1:
-                        itemX = QTableWidgetItem(str(coord[0]))
-                        itemY = QTableWidgetItem(str(coord[1]))
-                        self.dockwidget.tableCoordFeu.setItem(i, 0, itemX)
-                        self.dockwidget.tableCoordFeu.setItem(i, 1, itemY)
-                        i = i + 1
-                cpt = cpt + 1
-            
-            f.close()
-            
+        
     
     def controler(self):
         

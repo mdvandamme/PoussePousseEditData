@@ -130,14 +130,6 @@ def intersects(segment1, segment2):
     param_1 = cartesienne(segment1)
     param_2 = cartesienne(segment2)
 
-    a1 = param_1[0]
-    b1 = param_1[1]
-    c1 = param_1[2]
-    
-    a2 = param_2[0]
-    b2 = param_2[1]
-    c2 = param_2[2]
-
     x11 = segment1[0]
     y11 = segment1[1]
     x12 = segment1[2]
