@@ -9,8 +9,9 @@
         author               : M.-D. Van Damme
  ***************************************************************************/
 
-
 """
+
+import os
 
 
 def suppLigne(urlfic, indice):
@@ -40,4 +41,44 @@ def addLigne(urlfic, x, y):
     with open(urlfic, 'a') as file:
         file.write(str(x) + ',' + str(y) + '\n')
         file.close()
+
+
+def createSettingsFile(uriSettings):
+    # on cree le fichier
+    f = open(uriSettings, "a")
+    f.close()
+
+
+def getUrlSettings(uriSettings, cle):
+    urlARetourner = ''
+    with open(uriSettings, "r") as f:
+        for line in f:
+            if line.strip().rstrip('\n').startswith(cle):
+                infos = line.strip().rstrip('\n').split("=")
+                urlARetourner = infos[1]
+        f.close()
+    return urlARetourner
+
+
+def addUrlSettings(uriSettings, cle, newUrl):
+
+    # On recupere les url du fichier        
+    uriGrille = getUrlSettings(uriSettings, 'grille')
+    uriPtASaisir = getUrlSettings(uriSettings, 'ptASaisir')
+        
+    # On ecrase par le nouveau chemin   
+    if cle == 'grille':
+        uriGrille = newUrl
+    if cle == 'ptASaisir':
+        uriPtASaisir = newUrl
+        
+    # On ecrase le fichier avec les URL
+    with open(uriSettings, "w") as f:
+        if uriGrille != '':
+            f.write('grille=' + uriGrille + '\n') # os.linesep
+        if uriPtASaisir != '':
+            f.write('ptASaisir=' + uriPtASaisir)
+        # On ferme le fichier
+        f.close()
+
         

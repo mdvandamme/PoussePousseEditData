@@ -29,7 +29,7 @@ from qgis.core import QgsVectorLayer, QgsMapLayer
 from qgis.core import QgsMapLayerRegistry
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
 
-from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbolV2
+from qgis.core import QgsFillSymbolV2, QgsMarkerSymbolV2
 from qgis.core import QgsRendererCategoryV2, QgsCategorizedSymbolRendererV2
 
 # Initialize Qt resources from file resources.py
@@ -48,7 +48,7 @@ import time
 import sampleConvexHull as tirage
 
 from editdata import util_layer
-# import util_io
+from editdata import util_io
 from editdata import util_table
 
 
@@ -91,6 +91,7 @@ class ParcoursGrille:
         
         self.dlg = PluginPoussePousseValideDialog()
         
+        self.uriSettings = os.path.join(self.plugin_dir, 'settings.conf')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -194,41 +195,33 @@ class ParcoursGrille:
         """Run method that performs all the real work"""
         
         if not self.pluginIsActive:
+            
             self.pluginIsActive = True       
        
             if self.dockwidget == None:
+                
                 self.dockwidget = GeodataMatchingDialog()
                 
                 # =======
                 #   Settings
                 trouve = False
-                self.uriSettings = os.path.join(self.plugin_dir,'settings.conf')
+                
                 isSettingsExist = os.path.exists(self.uriSettings)
                 if (not isSettingsExist):
                     # on cree le fichier
-                    f = open(self.uriSettings, "w+")
-                    f.close()
+                    util_io.createSettingsFile(self.uriSettings)
                 else:
                     # On recupere les infos pour initialiser
+                    uriGrille = util_io.getUrlSettings(self.uriSettings, 'grille')
+                    if uriGrille != '':
+                        self.dockwidget.fileImportGrille.setFilePath(uriGrille.strip())
+                        self.importGrille()
+                    uriPtASaisir = util_io.getUrlSettings(self.uriSettings, 'ptASaisir')
+                    if uriPtASaisir != '':
+                        self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
+                        self.importInventaireCSV()
+                        trouve = True
                     
-                    with open(self.uriSettings) as f:
-                        for line in f:
-                            
-                            prefix = 'grille'
-                            if line.strip().startswith(prefix):
-                                uriGrille = line[7:len(line)]
-                                self.dockwidget.fileImportGrille.setFilePath(uriGrille.strip())
-                                self.importGrille()
-                            
-                            prefix = 'ptASaisir'
-                            if line.strip().startswith(prefix):
-                                uriPtASaisir = line[10:len(line)]
-                                self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
-                                self.importInventaireCSV()
-                                trouve = True
-                            
-                        f.close()
-        
                 # On initialise la cellule de démarrage
                 self.dockwidget.currentId.setText("0")
                 
@@ -264,14 +257,10 @@ class ParcoursGrille:
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
         self.dockwidget.show()
         
-        
+    #
     def zoomEmprise(self):
-        layerGrille = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
-                    layerGrille = layer
+        
+        layerGrille = util_layer.getLayer('Grille')
         
         if layerGrille != None:
             extent = layerGrille.extent()
@@ -285,24 +274,25 @@ class ParcoursGrille:
         uriGrille = self.dockwidget.fileImportGrille.filePath().strip()
         # print (uriGrille)
         
-        # print (uri)
+        # 
         layerGrille = util_layer.getLayer('Grille')
         if layerGrille == None:
             layerGrille = util_layer.createLayerGrille(uriGrille)
+            QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
         
         # Projection pour la construction des autres layers
-#        self.projGrille = layerGrille.crs().authid()
-#
-#        # On intialise les variables de grandeur de la grille
-#        self.init_param_grille()
+        self.projGrille = layerGrille.crs().authid()
         
         # On enregistre le chemin dans les settings
-        self.settings('grille', uriGrille)
+        util_io.addUrlSettings(self.uriSettings, 'grille', uriGrille)
+
+        # On intialise les variables de grandeur de la grille
+        self.init_param_grille()
         
-#        self.goTo("0")
-#
-#        self.zoomEmprise()
-#        self.iface.mapCanvas().refresh();
+        self.goTo("0")
+
+        self.zoomEmprise()
+        self.iface.mapCanvas().refresh();
         
         
         
@@ -315,7 +305,7 @@ class ParcoursGrille:
         # print (uriSL)
         
         # On enregistre le chemin dans les settings
-        self.settings('ptASaisir', uriSL)
+        util_io.addUrlSettings(self.uriSettings, 'ptASaisir', uriSL)
         
         # charge le tableau
         self.dockwidget.tableCoordFeu = util_table.charge(uriSL, self.dockwidget.tableCoordFeu)
@@ -328,21 +318,21 @@ class ParcoursGrille:
         # ====================================================
         #    Layer
         #
-#        layerStopLine = util_layer.getLayer('PointsASaisir')
-#        
-#        if layerStopLine == None:
-#            # creation du layer point
-#            proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
-#            if hasattr(self, 'projGrille') and self.projGrille != None:
-#                proj = self.projGrille
-#            layerStopLine = util_layer.createLayerPoint(proj)
-#            
-#            # La couche est creee , il faut l'ajouter a l'interface
-#            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
-#            
-#        else:
-#            # le layer existe, on supprime les features
-#            layerStopLine = util_layer.removeAllFeature(layerStopLine)
+        layerStopLine = util_layer.getLayer('PointsASaisir')
+        
+        if layerStopLine == None:
+            # creation du layer point
+            proj = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
+            if hasattr(self, 'projGrille') and self.projGrille != None:
+                proj = self.projGrille
+            layerStopLine = util_layer.createLayerPoint(proj)
+            
+            # La couche est creee , il faut l'ajouter a l'interface
+            QgsMapLayerRegistry.instance().addMapLayer(layerStopLine)
+            
+        else:
+            # le layer existe, on supprime les features
+            layerStopLine = util_layer.removeAllFeature(layerStopLine)
             
 
         # On passe le layer aux outils click
@@ -377,13 +367,7 @@ class ParcoursGrille:
     def init_param_grille(self):
         
         # On recupere le layer
-        layerGrille = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
-                    layerGrille = layer
-        
+        layerGrille = util_layer.getLayer('Grille')
         
         # Liste des identifiants
         self.idList = []
@@ -456,17 +440,11 @@ class ParcoursGrille:
         
     def goTo(self, currId):
         
-        layerGrille = None
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
-                    layerGrille = layer
+        layerGrille = util_layer.getLayer('Grille')
         
         if layerGrille != None:
             # zoom sur la cellule
             util_layer.zoomFeature(self.iface, layerGrille, currId)
-            
             
             # On change le focus si saisie
             changeFocus = True
@@ -477,28 +455,9 @@ class ParcoursGrille:
                         changeFocus = False
                         
             if changeFocus:
-                props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
-                symbol1 = QgsFillSymbolV2.createSimple(props1)
-                
-                props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
-                symbol2 = QgsFillSymbolV2.createSimple(props2)
-                
-                categories = []
-                for feature in layerGrille.getFeatures():
-                    id = feature.attributes()[0]
-                    if str(id) == currId:
-                        category = QgsRendererCategoryV2(id, symbol2, str(id))
-                        categories.append(category)
-                    else:
-                        category = QgsRendererCategoryV2(id, symbol1, str(id))
-                        categories.append(category)
-                
-                
-                # Create the renderer and assign it to a layer
-                expression = 'id' # Field name
-                renderer = QgsCategorizedSymbolRendererV2(expression, categories)
-                layerGrille.setRendererV2(renderer)
+                layerGrille = util_layer.setStyleGrilleSaisie(layerGrille, currId)
         
+        #        
         self.iface.mapCanvas().refresh();
             
     
@@ -708,18 +667,6 @@ class ParcoursGrille:
             
             # -----------------------------------------------------------------------------
             #    Style layer
-            # On change le focus
-            props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
-            symbol1 = QgsFillSymbolV2.createSimple(props1)
-            
-            #props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
-            #symbol2 = QgsFillSymbolV2.createSimple(props2)
-            
-            props3 = {'color': '180,180,180', 'size':'1', 'color_border' : '180,180,180', 'width_border':'1'}
-            symbol3 = QgsFillSymbolV2.createSimple(props3)
-            symbol3.setAlpha(0.70)
-            
-            categories = []
             for feature in layerGrille.getFeatures():
                 id = feature.attributes()[0]
                 
@@ -734,60 +681,18 @@ class ParcoursGrille:
                 
                 if tire:
                     self.idList.append(int(id))
-                    category = QgsRendererCategoryV2(id, symbol1, str(id))
-                    categories.append(category)
-                else:
-                    category = QgsRendererCategoryV2(id, symbol3, str(id))
-                    categories.append(category)
-            
-            # Create the renderer and assign it to a layer
-            expression = 'id' # Field name
-            renderer = QgsCategorizedSymbolRendererV2(expression, categories)
-            layerGrille.setRendererV2(renderer)
-            
             # print (self.idList)
+
+
+            layerGrille = util_layer.setStyleGrilleControle(layerGrille, self.idList)
+            
+            
             # On initialise la cellule de démarrage
             premier = str(self.idList[0])
             self.dockwidget.currentId.setText(premier)
             self.goTo(premier)
             
             self.zoomEmprise()
-            
-    def settings(self, cle, newUrl):
-        
-        uriGrille = ''
-        uriPtASaisir = ''
-        
-        # On ouvre le fichier et on enregistre les clés
-        with open(self.uriSettings) as f:
-            for line in f:
-                # entetes = line.strip().split(",")
-                prefix = 'grille'
-                if line.strip().startswith(prefix):
-                    uriGrille = line[7:len(line)]
-                
-                prefix = 'ptASaisir'
-                if line.strip().startswith(prefix):
-                    uriPtASaisir = line[10:len(line)]
-                    
-            f.close()
-    
-        f = open(self.uriSettings, "w+")
-        
-        if cle == 'grille':
-            f.write('grille:' + newUrl + '\n')
-        else:
-            if uriGrille != '':
-                f.write('grille:' + uriGrille + '\n')
-                
-        if cle == 'ptASaisir':
-            f.write('ptASaisir:' + newUrl + '\n')
-        else:
-            if uriPtASaisir != '':
-                f.write('ptASaisir:' + uriPtASaisir + '\n')
-                
-        # On ferme le fichier
-        f.close()
             
         
     def addStopLine(self):

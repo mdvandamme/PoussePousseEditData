@@ -13,6 +13,8 @@
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
 from qgis.core import QgsVectorLayer, QgsMapLayer, QgsMapLayerRegistry
 from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbolV2
+from qgis.core import QgsSymbolV2, QgsRuleBasedRendererV2
+
 
 from PyQt4.QtGui import QColor
 
@@ -77,7 +79,6 @@ def addPointLayer(layer, x, y):
 
 def createLayerGrille(uriGrille):
     layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
-    QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
     
     # Style 
     props = {'color': '241,241,241,0', 'size':'1', 'color_border' : '255,0,0'}
@@ -112,4 +113,110 @@ def zoomFeature(iface, layer, currId):
             iface.mapCanvas().refresh();
             layer.selectByIds([]);
 
+
+
+def setStyleGrilleSaisie(layerGrille, currid):
+    
+    props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0', 'width_border':'0.5'}
+    symbol1 = QgsFillSymbolV2.createSimple(props1)
+                
+    props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0'}
+    symbol2 = QgsFillSymbolV2.createSimple(props2)
+    
+    # On definit les règles de symbologie
+    cell_rules = (
+            ('Cellule en cours', 'id = ' + str(currid), symbol1),
+            ('Autre cellule', 'id != ' + str(currid), symbol2)
+    )
+    
+    # create a new rule-based renderer
+    symbol = QgsSymbolV2.defaultSymbol(layerGrille.geometryType())
+    renderer = QgsRuleBasedRendererV2(symbol)
+
+    # get the "root" rule
+    root_rule = renderer.rootRule()
+
+    for label, expression, symbol in cell_rules:
+    
+        # create a clone (i.e. a copy) of the default rule
+        rule = root_rule.children()[0].clone()
+    
+        # set the label, expression and color
+        rule.setLabel(label)
+        rule.setFilterExpression(expression)
+    
+        # rule.symbol().setColor(QColor(color_name))
+        rule.setSymbol(symbol)
+    
+        # append the rule to the list of rules
+        root_rule.appendChild(rule)
+
+
+    # delete the default rule
+    root_rule.removeChildAt(0)
+
+    # apply the renderer to the layer
+    layerGrille.setRendererV2(renderer)
+
+    return layerGrille
+
+
+def setStyleGrilleControle(layerGrille, idList):
+    
+    # Symbologie: cellule a controler
+    props1 = {'color': '241,241,241,0', 'size':'0', 'color_border' : '255,0,0'}
+    symbol1 = QgsFillSymbolV2.createSimple(props1)
+            
+    #props2 = {'color': '255,127,0,0', 'size':'0', 'color_border' : '255,127,0', 'width_border':'1'}
+    #symbol2 = QgsFillSymbolV2.createSimple(props2)
+       
+    # Symbologie: cellule a griser     
+    props3 = {'color': '180,180,180', 'size':'1', 'color_border' : '180,180,180'}
+    symbol3 = QgsFillSymbolV2.createSimple(props3)
+    symbol3.setAlpha(0.70)
+
+
+    # On definit les règles de symbologie
+    txtRule = ' in ('
+    for i in range(len(idList)):
+        id = idList[i]
+        txtRule = txtRule + str(id) + ', '
+    txtRule = txtRule[0:len(txtRule) - 2]
+    txtRule = txtRule + ')'
+    
+    cell_rules = (
+            ('A controler', 'id ' + txtRule, symbol1),
+            ('Pass', 'id not ' + txtRule, symbol3)
+    )
+    
+    # create a new rule-based renderer
+    symbol = QgsSymbolV2.defaultSymbol(layerGrille.geometryType())
+    renderer = QgsRuleBasedRendererV2(symbol)
+
+    # get the "root" rule
+    root_rule = renderer.rootRule()
+
+    for label, expression, symbol in cell_rules:
+    
+        # create a clone (i.e. a copy) of the default rule
+        rule = root_rule.children()[0].clone()
+    
+        # set the label, expression and color
+        rule.setLabel(label)
+        rule.setFilterExpression(expression)
+    
+        # rule.symbol().setColor(QColor(color_name))
+        rule.setSymbol(symbol)
+    
+        # append the rule to the list of rules
+        root_rule.appendChild(rule)
+
+
+    # delete the default rule
+    root_rule.removeChildAt(0)
+
+    # apply the renderer to the layer
+    layerGrille.setRendererV2(renderer)
+
+    return layerGrille
 
