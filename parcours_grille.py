@@ -204,7 +204,7 @@ class ParcoursGrille:
                 
                 # =======
                 #   Settings
-                trouve = False
+                existeFicPoint = False
                 
                 isSettingsExist = os.path.exists(self.uriSettings)
                 if (not isSettingsExist):
@@ -220,12 +220,12 @@ class ParcoursGrille:
                     if uriPtASaisir != '':
                         self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
                         self.importInventaireCSV()
-                        trouve = True
+                        existeFicPoint = True
                     
                 # On initialise la cellule de démarrage
                 self.dockwidget.currentId.setText("0")
                 
-                if not trouve:
+                if not existeFicPoint:
                     self.dockwidget.tableCoordFeu.setRowCount(0)
                     self.dockwidget.tableCoordFeu.setColumnCount(0)
                 
@@ -277,6 +277,12 @@ class ParcoursGrille:
         # 
         layerGrille = util_layer.getLayer('Grille')
         if layerGrille == None:
+            layerGrille = util_layer.createLayerGrille(uriGrille)
+            QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
+        else:
+            # On supprime le layer
+            QgsMapLayerRegistry.instance().removeMapLayers( [layerGrille.id()] )
+            # On reconstruit avec le nouveau fichier
             layerGrille = util_layer.createLayerGrille(uriGrille)
             QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
         
@@ -537,12 +543,13 @@ class ParcoursGrille:
         # See if OK was pressed
         if result:
             
-            # On désactive le fichier d'inventaire
+            # On désactive beaucoup d'action
+            self.dockwidget.fileImportGrille.setDisabled(True)
             self.dockwidget.fileOuvrirInventaireCSV.setDisabled(True)
             self.dockwidget.btSynchronize.setDisabled(True)
             self.dockwidget.btViderFichier.setDisabled(True)
             self.dockwidget.btCheck.setDisabled(False)
-        
+            
         
             layerStopLine = util_layer.getLayer('PointsASaisir')
             featuresPointEnvConvexe = layerStopLine.getFeatures()
