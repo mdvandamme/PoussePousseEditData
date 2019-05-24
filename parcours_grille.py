@@ -41,7 +41,7 @@ from editdata.feature_tool_delete import FeatureToolDelete
 import os.path
 
 # Tirage des points
-import sampleConvexHull as tirage
+from editdata import sampleConvexHull as tirage
 
 from editdata import util_layer
 from editdata import util_io
@@ -140,7 +140,7 @@ class ParcoursGrille:
         self.add_action(
             icon_path,
             text=self.tr(u'Panneau des outils pour la saisie, le contrôle et la validation des données'),
-            callback=self.InitPoussePousse,
+            callback=self.initPoussePousse,
             parent=self.iface.mainWindow())
         
         # Create a new FeatureToolAdd and keep reference
@@ -187,7 +187,7 @@ class ParcoursGrille:
         self.pluginIsActive = False
 
 
-    def InitPoussePousse(self):
+    def initPoussePousse(self):
         """Run method that performs all the real work"""
         
         if not self.pluginIsActive:
@@ -238,6 +238,7 @@ class ParcoursGrille:
                 self.dockwidget.btZoomGrille.clicked.connect(self.zoomEmprise)
                 self.dockwidget.btViderFichier.clicked.connect(self.raz)
                 self.dockwidget.btControler.clicked.connect(self.controler)
+                self.dockwidget.btReload.clicked.connect(self.reload)
                 
                 self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
                 self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
@@ -246,6 +247,36 @@ class ParcoursGrille:
                 self.dockwidget.fileControleCSV.setText('')
                 
                 self.dockwidget.btCheck.setDisabled(True)
+                
+        else:
+            # On recupere les infos pour initialiser
+            uriGrille = util_io.getUrlSettings(self.uriSettings, 'grille')
+            if uriGrille != '':
+                self.dockwidget.fileImportGrille.setFilePath(uriGrille.strip())
+                self.importGrille()
+                uriPtASaisir = util_io.getUrlSettings(self.uriSettings, 'ptASaisir')
+            if uriPtASaisir != '':
+                self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
+                self.importInventaireCSV()
+                existeFicPoint = True
+            
+            # On initialise la cellule de démarrage
+            self.dockwidget.currentId.setText("0")
+                
+            # Gestion du tableau
+            self.featureToolAdd.setTable(self.dockwidget.tableCoordFeu)
+            self.featureToolDelete.setTable(self.dockwidget.tableCoordFeu)
+                
+            self.dockwidget.fileControleCSV.setDisabled(True)
+            self.dockwidget.fileControleCSV.setText('')
+            
+            # On désactive beaucoup d'action
+            self.dockwidget.fileImportGrille.setDisabled(False)
+            self.dockwidget.fileOuvrirInventaireCSV.setDisabled(False)
+            self.dockwidget.btSynchronize.setDisabled(False)
+            self.dockwidget.btViderFichier.setDisabled(False)
+            self.dockwidget.btCheck.setDisabled(True)
+            self.dockwidget.btControler.setDisabled(False)
                 
         self.iface.mapCanvas().refresh()
                 
@@ -522,7 +553,7 @@ class ParcoursGrille:
             self.dockwidget.btSynchronize.setDisabled(True)
             self.dockwidget.btViderFichier.setDisabled(True)
             self.dockwidget.btCheck.setDisabled(False)
-            
+            self.dockwidget.btControler.setDisabled(True)
         
             layerStopLine = util_layer.getLayer('PointsASaisir')
             featuresPointEnvConvexe = layerStopLine.getFeatures()
@@ -647,6 +678,24 @@ class ParcoursGrille:
         self.iface.mapCanvas().setMapTool(self.featureToolDelete)
 
 
-
-
+    def reload(self):
+        
+        # ----------------------------------------------------------------------------
+        # supprime les layers
+        layerGrille = util_layer.getLayer('Grille')
+        if layerGrille != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerGrille.id()] )
+                
+        layerStopLine = util_layer.getLayer('PointsASaisir')
+        if layerStopLine != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+                
+        layerStopLine = util_layer.getLayer('PointsAControler')
+        if layerStopLine != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+        
+        
+        # ----------------------------------------------------------------------------
+        # et on recharge
+        self.initPoussePousse()
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geodata_matching_dialog_base.ui'
 #
-# Created: Tue May 21 18:04:37 2019
+# Created: Fri May 24 10:15:07 2019
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_DockWidget(object):
     def setupUi(self, DockWidget):
         DockWidget.setObjectName(_fromUtf8("DockWidget"))
-        DockWidget.resize(374, 675)
+        DockWidget.resize(379, 745)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(150)
@@ -118,6 +118,14 @@ class Ui_DockWidget(object):
         self.btCheck.setEnabled(False)
         self.btCheck.setGeometry(QtCore.QRect(20, 600, 321, 23))
         self.btCheck.setObjectName(_fromUtf8("btCheck"))
+        self.btReload = QtGui.QPushButton(self.dockWidgetContents)
+        self.btReload.setGeometry(QtCore.QRect(100, 650, 50, 50))
+        self.btReload.setText(_fromUtf8(""))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/PoussePousseEditData/img/reload.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btReload.setIcon(icon)
+        self.btReload.setIconSize(QtCore.QSize(40, 40))
+        self.btReload.setObjectName(_fromUtf8("btReload"))
         DockWidget.setWidget(self.dockWidgetContents)
 
         self.retranslateUi(DockWidget)

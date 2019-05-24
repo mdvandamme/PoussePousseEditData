@@ -3,5 +3,6 @@
         <file>img/logoPoussePousseEditData.png</file>
 		<file>img/add.png</file>
 		<file>img/delete.png</file>
+		<file>img/reload.png</file>
     </qresource>
 </RCC>
