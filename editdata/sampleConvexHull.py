@@ -153,6 +153,36 @@ def intersects(segment1, segment2):
     return (val1 <= 0) & (val2 <= 0)
     
 
+def aire_polygone(X, Y):
+
+    aire = 0
+
+    X.append(X[0])
+    Y.append(Y[0])
+        
+    n = len(X)
+    
+    for i in range(0, n-1):
+        aire += X[i]*Y[i+1]-X[i+1]*Y[i]
+        
+    aire *= 0.5
+    aire = abs(aire)
+
+    return aire
+
+
+def aire_env_convexe(T):
+    
+    H = convexHull(T)
+    X = column(T,0)
+    Y = column(T,1)
+    XC = [X[i] for i in H]
+    YC = [Y[i] for i in H]
+    
+    a = aire_polygone(XC, YC)
+    
+    return a
+
 # ---------------------------------------------------
 # Fonction d'echantillonnage d'indices de cellules 
 # dans l'enveloppe convexe d'un semis de points

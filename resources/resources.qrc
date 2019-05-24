@@ -4,5 +4,6 @@
 		<file>img/add.png</file>
 		<file>img/delete.png</file>
 		<file>img/reload.png</file>
+		<file>img/vider.png</file>
     </qresource>
 </RCC>

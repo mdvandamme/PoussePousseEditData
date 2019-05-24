@@ -38,15 +38,17 @@ from editdata.valider_dialog import PluginPoussePousseValideDialog
 from editdata.feature_tool_add import FeatureToolAdd
 from editdata.feature_tool_delete import FeatureToolDelete
 
+import math
 import os.path
 
 # Tirage des points
 from editdata import sampleConvexHull as tirage
+from editdata import validation as controle
 
 from editdata import util_layer
 from editdata import util_io
 from editdata import util_table
-
+from editdata import grille
 
 
 class ParcoursGrille:
@@ -239,6 +241,8 @@ class ParcoursGrille:
                 self.dockwidget.btViderFichier.clicked.connect(self.raz)
                 self.dockwidget.btControler.clicked.connect(self.controler)
                 self.dockwidget.btReload.clicked.connect(self.reload)
+                self.dockwidget.btCheck.clicked.connect(self.valider)
+                self.dockwidget.btVider.clicked.connect(self.vider)
                 
                 self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
                 self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
@@ -247,6 +251,13 @@ class ParcoursGrille:
                 self.dockwidget.fileControleCSV.setText('')
                 
                 self.dockwidget.btCheck.setDisabled(True)
+                
+                self.dockwidget.txtCompletion.setDisabled(True)
+                self.dockwidget.txtMissing.setDisabled(True)
+                self.dockwidget.txtError.setDisabled(True)
+                self.dockwidget.txtRMSE.setDisabled(True)
+                self.dockwidget.txtSBE.setDisabled(True)
+                self.dockwidget.txtSBN.setDisabled(True)
                 
         else:
             # On recupere les infos pour initialiser
@@ -606,7 +617,7 @@ class ParcoursGrille:
             # ====================================================
             # ----------------------------------------------------------
             r = self.r
-            N = int(self.dlg.editNbCellTirage.text())
+            self.N = int(self.dlg.editNbCellTirage.text())
             #print (nbCell)
             
             xmin = layerGrille.extent().xMinimum()
@@ -617,12 +628,12 @@ class ParcoursGrille:
             nx = self.nx
             # print ('nx=' + str(nx))
             ny = self.ny
-            
+            self.Nc = nx * ny
             
             # Mode du tirage
             if self.dlg.radioEmprise.isChecked():
                 tabdonnee = [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]]
-                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, tabdonnee)
+                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, self.N, tabdonnee)
             
             elif self.dlg.radioEnvConvexe.isChecked():
                 tabdonnee = []
@@ -631,8 +642,20 @@ class ParcoursGrille:
                     x = geom.asPoint().x()
                     y = geom.asPoint().y()
                     tabdonnee.append([x,y])   
-                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, N, tabdonnee)
+                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, self.N, tabdonnee)
+                TReel = []
+                for (i,j) in T:
+                    x = xmin + i * self.r
+                    y = ymin + j * self.r
+                    TReel.append([x,y])
+                aec = tirage.aire_env_convexe(TReel)
+                self.Nc = math.floor(aec / (self.r * self.r))
+                
             # print (T)
+            
+            self.C = []
+            for (i,j) in T:
+                self.C.append([i,j])
             
             # ----------------------------------------------------------------------------
             # On change le parcours
@@ -678,7 +701,7 @@ class ParcoursGrille:
         self.iface.mapCanvas().setMapTool(self.featureToolDelete)
 
 
-    def reload(self):
+    def vider(self):
         
         # ----------------------------------------------------------------------------
         # supprime les layers
@@ -693,9 +716,38 @@ class ParcoursGrille:
         layerStopLine = util_layer.getLayer('PointsAControler')
         if layerStopLine != None:
                 QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+
+
+    def reload(self):
         
+        # supprime les layers
+        self.vider()
         
-        # ----------------------------------------------------------------------------
         # et on recharge
         self.initPoussePousse()
 
+
+
+    def valider(self):
+        
+        uriData = self.dockwidget.fileOuvrirInventaireCSV.filePath().strip()
+        uriValid = self.dockwidget.fileControleCSV.text().strip()
+        
+        layerGrille = util_layer.getLayer('Grille')
+        xmin = layerGrille.extent().xMinimum()
+        ymin = layerGrille.extent().yMinimum()
+
+        nx = self.nx
+        ny = self.ny
+        r = self.r
+        g = grille.Grille(nx, ny, xmin, ymin, r, r)
+        
+        (completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn) = controle.validation(uriData, uriValid, g, self.C, self.Nc)
+        
+        self.dockwidget.txtCompletion.setText(str(completion) + ' (+/- ' + str(scompletion) + ') %')
+        self.dockwidget.txtMissing.setText('< ' + str(missing))
+        self.dockwidget.txtError.setText(str(error) + ' (+/- ' + str(serror) + ') m')
+        self.dockwidget.txtRMSE.setText(str(rmse) + ' (+/- ' + str(srmse) + ') m')
+        self.dockwidget.txtSBE.setText(str(be) + ' (+/- ' + str(sbe) + ') m')
+        self.dockwidget.txtSBN.setText(str(bn) + ' (+/- ' + str(sbn) + ') m')
+        
