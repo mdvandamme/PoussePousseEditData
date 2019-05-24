@@ -66,7 +66,7 @@ def validation(xmin, ymin, nx, ny, N):
 		nb_shortage = nb_shortage + SHORTAGE[i]
 		
 	nb_shortage_total = nb_shortage*(nx*ny)/N
-	completion = math.floor(10000*(len(XA)/(len(XA)+nb_shortage_total)))/100
+	completion = math.floor(10000*(len(XA)/(len(XA)+nb_shortage_total))) / 100
 
 	output = "Completion: "+str(completion)+"%\r\n"	
 	output = output + "Theoretical missing number: "+str(math.floor(nb_shortage_total)+1)
