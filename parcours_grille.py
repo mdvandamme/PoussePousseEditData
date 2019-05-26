@@ -732,6 +732,8 @@ class ParcoursGrille:
 
     def valider(self):
         
+        # self.dlg.btNew.setDisabled(True)
+        
         uriData = self.dockwidget.fileOuvrirInventaireCSV.filePath().strip()
         uriValid = self.dockwidget.fileControleCSV.text().strip()
         

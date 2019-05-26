@@ -7,5 +7,6 @@
 		<file>img/vider.png</file>
 		<file>img/controle.png</file>
 		<file>img/valider.png</file>
+		<file>img/new.png</file>
     </qresource>
 </RCC>
