@@ -5,5 +5,7 @@
 		<file>img/delete.png</file>
 		<file>img/reload.png</file>
 		<file>img/vider.png</file>
+		<file>img/controle.png</file>
+		<file>img/valider.png</file>
     </qresource>
 </RCC>

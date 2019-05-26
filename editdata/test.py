@@ -1,24 +1,10 @@
 import sys
 import math
 import random
-# import progressbar
 
-# -----------------------------------------------------------------
-# Input :
-# 	xmin, ymin : coordonnees 'lower-left' de la grille
-# 	nx, ny : nombres de cellules en x et y
-#   rx, ry : dimensions des cellules en x et y
-#   C : tableau a 2 dimensions des indices (i,j) des cellules
-#		echantillonnees lors du processus de validation
-#	Nc : nombre de cellules au total dans la zone de tirage 
-#		= nx * ny si tirage uniforme classique
-# 		= floor(aire enveloppe convexe / (rx * ry)) sinon
-#   B : nombre d'echantillons bootstrap (defaut : 500)
-#	factor : nombre de decimales dans le resultat (defaut : 3)
-# Output : 
-# 	Chaine de caracteres des indicateurs de qualite
-# -----------------------------------------------------------------
-def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, factor=10**3):
+from grille import Grille
+
+def validation(acquisition_file_path, validation_file_path, g, C, Nc, B = 500, factor = 10**3):
 
     N = len(C)
     bootstrap_sample_size = B
@@ -65,13 +51,13 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
     
 
     for k in range(len(XA)):
-        ik = int (math.floor( (XA[k] - g.xmin) / g.rx))
-        jk = int (math.floor( (YA[k] - g.ymin) / g.ry))
+        ik = math.floor( (XA[k] - g.xmin) / g.rx)
+        jk = math.floor( (YA[k] - g.ymin) / g.ry)
         TA[ik][jk].append(k) 
 		
     for k in range(len(XV)):
-        ik = int(math.floor((XV[k]-g.xmin)/g.rx))
-        jk = int(math.floor((YV[k]-g.ymin)/g.ry))
+        ik = math.floor((XV[k]-g.xmin)/g.rx)
+        jk = math.floor((YV[k]-g.ymin)/g.ry)
         TV[ik][jk].append(k)
 
 
@@ -145,7 +131,7 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
         nb_shortage_total = nb_shortage*Nc/N
         div = len(XA)+nb_shortage_total
         if div > 0:
-            completion = int(math.floor(10000*(len(XA)/div))/100)
+            completion = math.floor(10000*(len(XA)/div))/100
         else:
             completion = 0
 		
@@ -154,7 +140,7 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
         RMSE.append(rmse)
         ERROR.append(error)
         COMPLETION.append(completion)
-        NB_SHORTAGE_TOTAL.append(int(math.floor(nb_shortage_total)+1))
+        NB_SHORTAGE_TOTAL.append(math.floor(nb_shortage_total)+1)
 		
 		
     be = 0
@@ -208,20 +194,20 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
     scompletion = math.sqrt(abs(completion2 - completion**2))
     snb_shortage = math.sqrt(abs(nb_shortage2 - nb_shortage**2))
 	
-    rmse = int(math.floor(rmse*factor))/factor
-    error = int(math.floor(error*factor))/factor
-    be = int(math.floor(be*factor))/factor
-    bn = int(math.floor(bn*factor))/factor
-    completion = int(math.floor(completion*factor))/factor
+    rmse = math.floor(rmse*factor)/factor
+    error = math.floor(error*factor)/factor
+    be = math.floor(be*factor)/factor
+    bn = math.floor(bn*factor)/factor
+    completion = math.floor(completion*factor)/factor
 	
-    srmse = int(math.floor(srmse*factor))/factor
-    serror = int(math.floor(serror*factor))/factor
-    sbe = int(math.floor(sbe*factor))/factor
-    sbn = int(math.floor(sbn*factor))/factor
-    scompletion = int(math.floor(scompletion*factor))/factor
-    snb_shortage = int(math.floor(snb_shortage*factor))/factor
+    srmse = math.floor(srmse*factor)/factor
+    serror = math.floor(serror*factor)/factor
+    sbe = math.floor(sbe*factor)/factor
+    sbn = math.floor(sbn*factor)/factor
+    scompletion = math.floor(scompletion*factor)/factor
+    snb_shortage = math.floor(snb_shortage*factor)/factor
 	
-    missing = int(math.floor(nb_shortage + 1.96*snb_shortage))+1
+    missing = math.floor(nb_shortage + 1.96*snb_shortage)+1
 	
     output = "Completion: "+str(completion)+" (+/- "+str(scompletion)+") %\r\n"	
     output = output + "Theoretical missing number: < "+str(missing)+"\r\n"
@@ -235,3 +221,22 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
 
 
 	
+
+
+acquisition_file_path = 'D:\\DATA\\PoussePousse\\Points.csv'
+validation_file_path = 'D:\\DATA\\PoussePousse\\ctrl_20190526_233430.dat'
+xmin = 650851.648136
+ymin = 6859531.09908
+nx = 8
+ny = 7
+Nc = 16
+rx = 250
+ry = 250
+C = [[5, 4], [4, 6], [6, 6], [4, 5], [7, 6], [7, 4], [7, 5], [3, 6], [6, 5], [5, 5]]
+
+g = Grille(nx, ny, xmin, ymin, rx, ry)
+
+# B=1000
+print(validation(acquisition_file_path, validation_file_path, g, C, Nc))
+		
+print("--------------------------------------------------------------------------------")

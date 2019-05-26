@@ -650,12 +650,14 @@ class ParcoursGrille:
                     TReel.append([x,y])
                 aec = tirage.aire_env_convexe(TReel)
                 self.Nc = math.floor(aec / (self.r * self.r))
+                self.Nc = int (self.Nc)
                 
             # print (T)
             
             self.C = []
             for (i,j) in T:
                 self.C.append([i,j])
+            # print (self.C)
             
             # ----------------------------------------------------------------------------
             # On change le parcours
@@ -741,6 +743,11 @@ class ParcoursGrille:
         ny = self.ny
         r = self.r
         g = grille.Grille(nx, ny, xmin, ymin, r, r)
+        
+        print ('===')
+        print (self.C)
+        print (self.Nc)
+        print ('===')
         
         (completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn) = controle.validation(uriData, uriValid, g, self.C, self.Nc)
         
