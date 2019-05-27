@@ -250,7 +250,11 @@ class ParcoursGrille:
                 self.dockwidget.fileControleCSV.setDisabled(True)
                 self.dockwidget.fileControleCSV.setText('')
                 
+                self.dockwidget.fileValidationCSV.setDisabled(True)
+                self.dockwidget.fileValidationCSV.setText('')
+                
                 self.dockwidget.btCheck.setDisabled(True)
+                self.dockwidget.btReload.setDisabled(True)
                 
                 self.dockwidget.txtCompletion.setDisabled(True)
                 self.dockwidget.txtMissing.setDisabled(True)
@@ -281,12 +285,16 @@ class ParcoursGrille:
             self.dockwidget.fileControleCSV.setDisabled(True)
             self.dockwidget.fileControleCSV.setText('')
             
+            self.dockwidget.fileValidationCSV.setDisabled(True)
+            self.dockwidget.fileValidationCSV.setText('')
+            
             # On désactive beaucoup d'action
             self.dockwidget.fileImportGrille.setDisabled(False)
             self.dockwidget.fileOuvrirInventaireCSV.setDisabled(False)
             self.dockwidget.btSynchronize.setDisabled(False)
             self.dockwidget.btViderFichier.setDisabled(False)
             self.dockwidget.btCheck.setDisabled(True)
+            self.dockwidget.btReload.setDisabled(True)
             self.dockwidget.btControler.setDisabled(False)
                 
         self.iface.mapCanvas().refresh()
@@ -565,6 +573,7 @@ class ParcoursGrille:
             self.dockwidget.btViderFichier.setDisabled(True)
             self.dockwidget.btCheck.setDisabled(False)
             self.dockwidget.btControler.setDisabled(True)
+            self.dockwidget.btReload.setDisabled(False)
         
             layerStopLine = util_layer.getLayer('PointsASaisir')
             featuresPointEnvConvexe = layerStopLine.getFeatures()
