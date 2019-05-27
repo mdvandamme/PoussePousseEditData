@@ -434,11 +434,11 @@ class ParcoursGrille:
         
         # Liste des identifiants
         self.idList = []
-        for feature in layerGrille.getFeatures():
-            id = feature.attributes()[0]
+        nb = layerGrille.featureCount()
+        for id in range(nb):
             self.idList.append(id)
             
-        # Nombre de cellule par ligne
+        # Nombre de cellule par colonne
         xmax = 0
         self.r = 0
         cpt = 0
@@ -456,9 +456,6 @@ class ParcoursGrille:
         self.nx = cpt
         
         # Nombre de cellule par colonne
-        nb = layerGrille.featureCount()
-        # print (nb)
-        # Nombre de cellule par colonne
         self.ny = nb / self.nx
         
         # On permutte toutes les nCell de x
@@ -474,6 +471,9 @@ class ParcoursGrille:
             cpt = cpt + 1
         # print (idList)
         
+        xmin = layerGrille.extent().xMinimum()
+        ymin = layerGrille.extent().yMinimum()
+        self.g = grille.Grille(self.nx, self.ny, xmin, ymin, self.r, self.r)
     
     
     def doSuivant(self):
@@ -492,7 +492,6 @@ class ParcoursGrille:
             nextId = self.idList[newindex + 1]
             self.dockwidget.currentId.setText(str(nextId))
             self.goTo(str(nextId))
-        
                 
                 
     def goId(self):
@@ -523,7 +522,7 @@ class ParcoursGrille:
                 layerGrille = util_layer.setStyleGrilleSaisie(layerGrille, currId)
         
         #        
-        self.iface.mapCanvas().refresh();
+        self.iface.mapCanvas().refresh()
             
         
     
@@ -672,7 +671,12 @@ class ParcoursGrille:
             # On change le parcours
             self.idList = []
             for feature in layerGrille.getFeatures():
-                id = feature.attributes()[0]
+                geom = feature.geometry()
+                x = geom.centroid().asPoint().x()
+                y = geom.centroid().asPoint().y()
+                (ifeat, jfeat) = self.g.getIJ (x,y)
+                id = self.g.getId(ifeat, jfeat)
+                # print (str(ifeat) + "-" + str(jfeat) + "-" + str(id))
                 
                 # est-ce que tire ?
                 tire = False
@@ -746,21 +750,8 @@ class ParcoursGrille:
         uriData = self.dockwidget.fileOuvrirInventaireCSV.filePath().strip()
         uriValid = self.dockwidget.fileControleCSV.text().strip()
         
-        layerGrille = util_layer.getLayer('Grille')
-        xmin = layerGrille.extent().xMinimum()
-        ymin = layerGrille.extent().yMinimum()
 
-        nx = self.nx
-        ny = self.ny
-        r = self.r
-        g = grille.Grille(nx, ny, xmin, ymin, r, r)
-        
-        print ('===')
-        print (self.C)
-        print (self.Nc)
-        print ('===')
-        
-        (completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn) = controle.validation(uriData, uriValid, g, self.C, self.Nc)
+        (completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn) = controle.validation(uriData, uriValid, self.g, self.C, self.Nc)
         
         self.dockwidget.txtCompletion.setText(str(completion) + ' (+/- ' + str(scompletion) + ') %')
         self.dockwidget.txtMissing.setText('< ' + str(missing))

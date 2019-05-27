@@ -15,8 +15,8 @@ from qgis.core import QgsVectorLayer, QgsMapLayer, QgsMapLayerRegistry
 from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbolV2
 from qgis.core import QgsSymbolV2, QgsRuleBasedRendererV2
 
-
 from PyQt4.QtGui import QColor
+
 
 def getLayer(nom):
     # Layer a retourner
