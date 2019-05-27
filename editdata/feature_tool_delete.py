@@ -55,7 +55,7 @@ class FeatureToolDelete(QgsMapTool):
         layerGrille = None
         for layer in self.canvas.layers():
             if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
+                if (layer.name() == util_layer.CONST_NOM_LAYER_GRILLE):
                     layerGrille = layer
         
         p = mouseEvent.pos()

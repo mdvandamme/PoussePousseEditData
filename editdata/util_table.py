@@ -55,9 +55,11 @@ def charge(uriSL, table):
                 # Ligne d'entete
                 entetes = line.strip().split(",")
                 # print (len(entetes))
-                table.setColumnCount(len(entetes))
+                # table.setColumnCount(len(entetes))
+                table.setColumnCount(2)
                 colHearder = []
-                for j in range(len(entetes)):
+                # for j in range(len(entetes)):
+                for j in range(2):
                     nom = entetes[j]
                     colHearder.append(nom)
                     table.setHorizontalHeaderLabels(colHearder)

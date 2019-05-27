@@ -11,11 +11,19 @@
 """
 
 from qgis.core import QgsPoint, QgsGeometry, QgsFeature
-from qgis.core import QgsVectorLayer, QgsMapLayer, QgsMapLayerRegistry
+from qgis.core import QgsField
+from PyQt4.QtCore import QVariant
+from qgis.core import QgsVectorLayer, QgsMapLayer, QgsMapLayerRegistry, QgsVectorDataProvider
 from qgis.core import QgsFillSymbolV2, QgsSingleSymbolRendererV2, QgsMarkerSymbolV2
 from qgis.core import QgsSymbolV2, QgsRuleBasedRendererV2
 
 from PyQt4.QtGui import QColor
+
+
+CONST_ATTRIBUT_ID = "ppid"
+CONST_NOM_LAYER_GRILLE = "Grille"
+CONST_NOM_LAYER_PT_SAISIR = "PointsASaisir"
+CONST_NOM_LAYER_PT_CONTROLE = "PointsAControler"
 
 
 def getLayer(nom):
@@ -78,7 +86,15 @@ def addPointLayer(layer, x, y):
 
 
 def createLayerGrille(uriGrille):
-    layerGrille = QgsVectorLayer(uriGrille, "Grille", "ogr")
+    
+    layerGrille = QgsVectorLayer(uriGrille, CONST_NOM_LAYER_GRILLE, "ogr")
+    
+    fieldIndex = getFieldIndex(layerGrille)
+    if fieldIndex < 0:
+        caps = layerGrille.dataProvider().capabilities()
+        if caps & QgsVectorDataProvider.AddAttributes:
+            layerGrille.dataProvider().addAttributes([QgsField(CONST_ATTRIBUT_ID, QVariant.Int)])
+        layerGrille.updateFields()
     
     # Style 
     props = {'color': '241,241,241,0', 'size':'1', 'color_border' : '255,0,0'}
@@ -88,9 +104,39 @@ def createLayerGrille(uriGrille):
     return layerGrille
 
 
+def getFieldIndex(layerGrille):
+    
+    fieldIndex = -1
+    
+    cpt = 0
+    for field in layerGrille.pendingFields():
+        if field.name() == CONST_ATTRIBUT_ID:
+            fieldIndex = cpt
+        cpt = cpt + 1
+    
+    return fieldIndex
+
+
+def updateAttId(layerGrille, g):
+    
+    fieldIndex = getFieldIndex(layerGrille)
+    
+    layerGrille.startEditing()
+    for feature in layerGrille.getFeatures():
+        geom = feature.geometry()
+        x = geom.centroid().asPoint().x()
+        y = geom.centroid().asPoint().y()
+        (ifeat, jfeat) = g.getIJ (x,y)
+        id = g.getId(ifeat, jfeat)
+    
+        # 
+        layerGrille.changeAttributeValue(feature.id(), fieldIndex, id)
+    layerGrille.commitChanges()
+
+
 def createLayerPoint(proj):
     
-    layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsASaisir", "memory")
+    layerStopLine = QgsVectorLayer ("Point?crs=" + proj, CONST_NOM_LAYER_PT_SAISIR, "memory")
             
     # Style
     # Symbologie des stations
@@ -104,7 +150,7 @@ def createLayerPoint(proj):
 
 def createLayerControle(proj):
     
-    layerStopLine = QgsVectorLayer ("Point?crs=" + proj, "PointsAControler", "memory")
+    layerStopLine = QgsVectorLayer ("Point?crs=" + proj, CONST_NOM_LAYER_PT_CONTROLE, "memory")
                 
     # Style
     # Symbologie des stations
@@ -116,10 +162,20 @@ def createLayerControle(proj):
     return layerStopLine
 
 
-def zoomFeature(iface, layer, currId):
+def zoomFeature(iface, layer, g, currId):
+    
+    idx = getFieldIndex(layer)
+    
     # On parcours les index jusqu'à celui qu'on a 
     for feature in layer.getFeatures():
-        id = feature.attributes()[0]
+        
+#        geom = feature.geometry()
+#        x = geom.centroid().asPoint().x()
+#        y = geom.centroid().asPoint().y()
+#        (ifeat, jfeat) = g.getIJ (x,y)
+#        id = g.getId(ifeat, jfeat)
+        id = feature.attributes()[idx]
+        
         if str(id) == currId:
             # zoom sur la couche
             layer.selectByIds([id])
@@ -139,8 +195,8 @@ def setStyleGrilleSaisie(layerGrille, currid):
     
     # On definit les règles de symbologie
     cell_rules = (
-            ('Cellule en cours', 'id = ' + str(currid), symbol1),
-            ('Autre cellule', 'id != ' + str(currid), symbol2)
+            ('Cellule en cours', CONST_ATTRIBUT_ID + ' = ' + str(currid), symbol1),
+            ('Autre cellule', CONST_ATTRIBUT_ID + ' != ' + str(currid), symbol2)
     )
     
     # create a new rule-based renderer
@@ -199,8 +255,8 @@ def setStyleGrilleControle(layerGrille, idList):
     txtRule = txtRule + ')'
     
     cell_rules = (
-            ('A controler', 'id ' + txtRule, symbol1),
-            ('Pass', 'id not ' + txtRule, symbol3)
+            ('A controler', CONST_ATTRIBUT_ID + ' ' + txtRule, symbol1),
+            ('Pass', CONST_ATTRIBUT_ID + ' not ' + txtRule, symbol3)
     )
     
     # create a new rule-based renderer

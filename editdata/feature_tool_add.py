@@ -16,8 +16,6 @@ from qgis.core import QgsMapLayer
 from PyQt4.QtGui import QCursor
 from PyQt4.QtCore import Qt
 
-# from qgis.core import QgsMapLayerRegistry
-
 import util_table
 import util_layer
 import util_io
@@ -26,7 +24,6 @@ class FeatureToolAdd(QgsMapTool):
     
     
     def __init__(self, canvas):
-        
         super(QgsMapTool, self).__init__(canvas)
         self.canvas = canvas
         self.cursor = QCursor(Qt.CrossCursor)
@@ -56,7 +53,7 @@ class FeatureToolAdd(QgsMapTool):
         layerGrille = None
         for layer in self.canvas.layers():
             if layer.type() == QgsMapLayer.VectorLayer:
-                if (layer.name() == 'Grille'):
+                if (layer.name() == util_layer.CONST_NOM_LAYER_GRILLE):
                     layerGrille = layer
         
         p = mouseEvent.pos()

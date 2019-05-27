@@ -49,10 +49,10 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
             XV.append(float(record[0]))
             YV.append(float(record[1]))
 		
-    print("--------------------------------------------------------------------------------")
-    print("Acquisition sample size: ", len(XA))
-    print("Validation sample size: ", len(XV))
-    print("--------------------------------------------------------------------------------")
+    # print("--------------------------------------------------------------------------------")
+    # print("Acquisition sample size: ", len(XA))
+    # print("Validation sample size: ", len(XV))
+    # print("--------------------------------------------------------------------------------")
     
 
     TA = [[[] for x in range(g.ny)]for x in range(g.nx)]
@@ -223,15 +223,15 @@ def validation(acquisition_file_path, validation_file_path, g, C, Nc, B=500, fac
 	
     missing = int(math.floor(nb_shortage + 1.96*snb_shortage))+1
 	
-    output = "Completion: "+str(completion)+" (+/- "+str(scompletion)+") %\r\n"	
-    output = output + "Theoretical missing number: < "+str(missing)+"\r\n"
-    output = output + "Mean error: "+str(error)+" (+/- "+str(serror)+") m\r\n"
-    output = output + "Root mean square error: "+str(rmse)+" (+/- "+str(srmse)+") m\r\n"
-    output = output + "X bias: "+str(be)+" (+/- "+str(sbe)+") m\r\n"
-    output = output + "Y bias: "+str(bn)+" (+/- "+str(sbn)+") m"
-    print (output)
+    # output = "Completion: "+str(completion)+" (+/- "+str(scompletion)+") %\r\n"	
+    # output = output + "Theoretical missing number: < "+str(missing)+"\r\n"
+    # output = output + "Mean error: "+str(error)+" (+/- "+str(serror)+") m\r\n"
+    # output = output + "Root mean square error: "+str(rmse)+" (+/- "+str(srmse)+") m\r\n"
+    # output = output + "X bias: "+str(be)+" (+/- "+str(sbe)+") m\r\n"
+    # output = output + "Y bias: "+str(bn)+" (+/- "+str(sbn)+") m"
+    # print (output)
     
-    return (completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn)
+    return (len(XA),len(XV),completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn)
 
 
 	

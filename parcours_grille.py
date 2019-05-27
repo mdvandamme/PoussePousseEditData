@@ -256,6 +256,9 @@ class ParcoursGrille:
                 self.dockwidget.btCheck.setDisabled(True)
                 self.dockwidget.btReload.setDisabled(True)
                 
+                self.dockwidget.txtNbCell.setDisabled(True)
+                self.dockwidget.txtNbAcquis.setDisabled(True)
+                self.dockwidget.txtNbValidation.setDisabled(True)
                 self.dockwidget.txtCompletion.setDisabled(True)
                 self.dockwidget.txtMissing.setDisabled(True)
                 self.dockwidget.txtError.setDisabled(True)
@@ -306,7 +309,7 @@ class ParcoursGrille:
     #
     def zoomEmprise(self):
         
-        layerGrille = util_layer.getLayer('Grille')
+        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
         
         if layerGrille != None:
             extent = layerGrille.extent()
@@ -321,7 +324,7 @@ class ParcoursGrille:
         # print (uriGrille)
         
         # 
-        layerGrille = util_layer.getLayer('Grille')
+        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
         if layerGrille == None:
             layerGrille = util_layer.createLayerGrille(uriGrille)
             QgsMapLayerRegistry.instance().addMapLayer(layerGrille)
@@ -340,6 +343,9 @@ class ParcoursGrille:
 
         # On intialise les variables de grandeur de la grille
         self.init_param_grille()
+        
+        # On affecte les attributs ID
+        util_layer.updateAttId(layerGrille, self.g)
         
         self.goTo("0")
 
@@ -377,7 +383,7 @@ class ParcoursGrille:
         # ====================================================
         #    Layer: creer ou supprimer les features
         #
-        layerStopLine = util_layer.getLayer('PointsASaisir')
+        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
         
         if layerStopLine == None:
             # creation du layer point
@@ -430,7 +436,7 @@ class ParcoursGrille:
     def init_param_grille(self):
         
         # On recupere le layer
-        layerGrille = util_layer.getLayer('Grille')
+        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
         
         # Liste des identifiants
         self.idList = []
@@ -504,18 +510,18 @@ class ParcoursGrille:
         
     def goTo(self, currId):
         
-        layerGrille = util_layer.getLayer('Grille')
+        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
         
         if layerGrille != None:
             # zoom sur la cellule
-            util_layer.zoomFeature(self.iface, layerGrille, currId)
+            util_layer.zoomFeature(self.iface, layerGrille, self.g, currId)
             
             # On change le focus si saisie
             changeFocus = True
             layers = QgsMapLayerRegistry.instance().mapLayers().values()
             for layer in layers:
                 if layer.type() == QgsMapLayer.VectorLayer:
-                    if (layer.name() == 'PointsAControler'):
+                    if (layer.name() == util_layer.CONST_NOM_LAYER_PT_CONTROLE):
                         changeFocus = False
                         
             if changeFocus:
@@ -533,7 +539,7 @@ class ParcoursGrille:
         
         # ====================================================
         #    Layer
-        layerStopLine = util_layer.getLayer('PointsASaisir')
+        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
     
         # On supprime les features du layer
         layerStopLine = util_layer.removeAllFeature(layerStopLine)
@@ -574,9 +580,9 @@ class ParcoursGrille:
             self.dockwidget.btControler.setDisabled(True)
             self.dockwidget.btReload.setDisabled(False)
         
-            layerStopLine = util_layer.getLayer('PointsASaisir')
+            layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
             featuresPointEnvConvexe = layerStopLine.getFeatures()
-            layerGrille = util_layer.getLayer('Grille')
+            layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
         
             # -----------------------------------------------------------------
             # On supprime le layer
@@ -600,7 +606,7 @@ class ParcoursGrille:
             # -----------------------------------------------------------------
             #    Layer
             # On cree un layer de validation
-            layerStopLine = util_layer.getLayer('PointsAControler')
+            layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_CONTROLE)
             
             if layerStopLine == None:
                 # creation du layer point
@@ -651,15 +657,19 @@ class ParcoursGrille:
                     y = geom.asPoint().y()
                     tabdonnee.append([x,y])   
                 T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, self.N, tabdonnee)
+                print (T)
                 TReel = []
                 for (i,j) in T:
                     x = xmin + i * self.r
                     y = ymin + j * self.r
+                    print (x,y)
                     TReel.append([x,y])
                 aec = tirage.aire_env_convexe(TReel)
+                print (aec)
                 self.Nc = math.floor(aec / (self.r * self.r))
+                print (self.Nc)
                 self.Nc = int (self.Nc)
-                
+                print (self.Nc)
             # print (T)
             
             self.C = []
@@ -671,19 +681,12 @@ class ParcoursGrille:
             # On change le parcours
             self.idList = []
             for feature in layerGrille.getFeatures():
-                geom = feature.geometry()
-                x = geom.centroid().asPoint().x()
-                y = geom.centroid().asPoint().y()
-                (ifeat, jfeat) = self.g.getIJ (x,y)
-                id = self.g.getId(ifeat, jfeat)
-                # print (str(ifeat) + "-" + str(jfeat) + "-" + str(id))
+                idx = util_layer.getFieldIndex(layerGrille)
+                id = feature.attributes()[idx]
                 
-                # est-ce que tire ?
+                # est-ce que le point est tire ?
                 tire = False
                 for (i,j) in T:
-                    # j = ny - j
-                    # i = nx - i - 1
-                    # idT = (nx - j - 1) * ny + i
                     idT = (ny - j - 1) * nx + i
                     
                     if idT == int(id):
@@ -720,15 +723,15 @@ class ParcoursGrille:
         
         # ----------------------------------------------------------------------------
         # supprime les layers
-        layerGrille = util_layer.getLayer('Grille')
+        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
         if layerGrille != None:
                 QgsMapLayerRegistry.instance().removeMapLayers( [layerGrille.id()] )
                 
-        layerStopLine = util_layer.getLayer('PointsASaisir')
+        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
         if layerStopLine != None:
                 QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
                 
-        layerStopLine = util_layer.getLayer('PointsAControler')
+        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_CONTROLE)
         if layerStopLine != None:
                 QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
 
@@ -750,8 +753,11 @@ class ParcoursGrille:
         uriData = self.dockwidget.fileOuvrirInventaireCSV.filePath().strip()
         uriValid = self.dockwidget.fileControleCSV.text().strip()
         
-
-        (completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn) = controle.validation(uriData, uriValid, self.g, self.C, self.Nc)
+        (nbXA,nbXV,completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn) = controle.validation(uriData, uriValid, self.g, self.C, self.Nc)
+        
+        self.dockwidget.txtNbCell.setText(str(self.N) + " / " + str(self.Nc))
+        self.dockwidget.txtNbAcquis.setText(str(nbXA))
+        self.dockwidget.txtNbValidation.setText(str(nbXV))
         
         self.dockwidget.txtCompletion.setText(str(completion) + ' (+/- ' + str(scompletion) + ') %')
         self.dockwidget.txtMissing.setText('< ' + str(missing))
