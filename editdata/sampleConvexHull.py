@@ -8,8 +8,9 @@ def column(matrix, i):
     return [row[i] for row in matrix]
 	
 
+
 def right(a,b,c):
-	return ((a == c) or (b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]) < 0)
+	return ((a == c) or (b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]) <= 0)
             
     
 def convexHull(T):
@@ -299,8 +300,8 @@ def aire_polygone(X, Y):
 
 
 def aire_env_convexe(T):
-    # H = convexHull(T)
-    H = convexeJarvis(T)
+    H = convexHull(T)
+    # H = convexeJarvis(T)
 
     X = column(T,0)
     Y = column(T,1)
@@ -328,8 +329,8 @@ def sampleInConvexHull(xmin, ymin, nx, ny, r, N, T):
     
     plt.axis([xmin,xmin+nx*r,ymin,ymin+ny*r])
 
-    # H = convexHull(T)
-    H = convexeJarvis(T)
+    H = convexHull(T)
+    #H = convexeJarvis(T)
 
     # n = len(T)
     X = column(T,0)
