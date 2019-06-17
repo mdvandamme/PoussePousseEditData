@@ -5,9 +5,11 @@ Calcul de l'enveloppe convexe.
 
 """
 
-
-# Returns a positive value, if OAB makes a counter-clockwise turn,
-# negative for clockwise turn, and zero if the points are collinear.
+#
+# Fonction retourne :
+#   - une valeur positive si OAB est orienté dans le sens des aiguilles d'une montre
+#   - une valeur négative si OAB est orienté dans le sens contraire
+#   - 0 si les points sont alignés
 def cross(o, a, b):
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
@@ -16,7 +18,7 @@ def envconvexe(T):
     
     E = []
 
-    # 1. Sort points by x coordinate, then by y coordinate
+    # 1. On trie les points suivant leur x, puis leur y
     T.sort(key=lambda x: (x[0],x[1]))
 
     if len(T) <= 1:

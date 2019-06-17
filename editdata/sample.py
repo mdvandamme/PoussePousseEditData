@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import random
-import matplotlib.pyplot as plt
 
 import envconvexe as envconv
 import geom as geom
@@ -9,12 +8,7 @@ import geom as geom
 
 def column(matrix, i):
     return [row[i] for row in matrix]
-	
-def getCellVerticesX(xmin, r, ix):
-	return [xmin + r*ix, xmin + r*(ix+1), xmin + r*(ix+1), xmin + r*ix, xmin + r*ix]
-	
-def getCellVerticesY(ymin, r, iy):
-	return [ymin+r*iy, ymin+r*iy, ymin+r*(iy+1), ymin+r*(iy+1), ymin+r*iy]
+
 	
 
 def aire_polygone(X, Y):
