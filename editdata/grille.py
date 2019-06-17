@@ -42,3 +42,11 @@ class Grille:
         
         id = (self.ny - j - 1) * self.nx + i
         return id
+    
+    
+    def __str__(self):
+        
+        txtToReturn = "[xmin,ymin]=[" + str(self.xmin) + ", " + str(self.ymin) + "] \n" 
+        txtToReturn = txtToReturn + "[nx,ny]=["+ str(self.nx) + "," + str(self.ny) + "] \n"
+        txtToReturn = txtToReturn + "[rx,ry]=["+ str(self.rx) + "," + str(self.ry) + "]"
+        return txtToReturn

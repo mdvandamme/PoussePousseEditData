@@ -479,7 +479,7 @@ class ParcoursGrille:
         xmin = layerGrille.extent().xMinimum()
         ymin = layerGrille.extent().yMinimum()
         self.g = grille.Grille(self.nx, self.ny, xmin, ymin, self.r, self.r)
-    
+        # print (self.g)
     
     def doSuivant(self):
         
@@ -656,19 +656,20 @@ class ParcoursGrille:
                     y = geom.asPoint().y()
                     tabdonnee.append([x,y])   
                 T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, self.N, tabdonnee)
-                print (T)
-                TReel = []
-                for (i,j) in T:
-                    x = xmin + i * self.r
-                    y = ymin + j * self.r
-                    print (x,y)
-                    TReel.append([x,y])
-                aec = tirage.aire_env_convexe(TReel)
-                print (aec)
+                # print (T)
+                # TReel = []
+                # for (i,j) in T:
+                    # x = xmin + i * self.r
+                    # y = ymin + j * self.r
+                    # print (x,y)
+                    # TReel.append([x,y])
+                # aec = tirage.aire_env_convexe(TReel)
+                aec = tirage.aire_env_convexe(tabdonnee)
+                # print (aec)
                 self.Nc = math.floor(aec / (self.r * self.r))
-                print (self.Nc)
+                # print (self.Nc)
                 self.Nc = int (self.Nc)
-                print (self.Nc)
+                # print (self.Nc)
             # print (T)
             
             self.C = []
