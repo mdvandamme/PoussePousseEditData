@@ -33,23 +33,22 @@ from qgis.core import QgsPoint, QgsGeometry, QgsFeature
 from resources import resources
 
 # Import the code for the gui
-from editdata.geodata_matching_dialog import GeodataMatchingDialog
-from editdata.valider_dialog import PluginPoussePousseValideDialog
-from editdata.feature_tool_add import FeatureToolAdd
-from editdata.feature_tool_delete import FeatureToolDelete
+from gui.poussepousse_editdata_dialog import PoussePousseEditDataDialog
+from gui.valider_dialog import PluginPoussePousseValideDialog
+from gui.feature_tool_add import FeatureToolAdd
+from gui.feature_tool_delete import FeatureToolDelete
+
+from gui import util_layer
+from gui import util_io
+from gui import util_table
 
 import math
 import os.path
 
 # Tirage des points
-from editdata import sampleConvexHull as tirage
+from editdata import sample as tirage
 from editdata import validation as controle
-
-from editdata import util_layer
-from editdata import util_io
-from editdata import util_table
 from editdata import grille
-
 
 class ParcoursGrille:
     """QGIS Plugin Implementation."""
@@ -75,7 +74,7 @@ class ParcoursGrille:
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
-        #self.dlg = GeodataMatchingDialog()
+        #self.dlg = PoussePousseEditDataDialog()
         self.pluginIsActive = False
         self.dockwidget = None
 
@@ -198,7 +197,7 @@ class ParcoursGrille:
        
             if self.dockwidget == None:
                 
-                self.dockwidget = GeodataMatchingDialog()
+                self.dockwidget = PoussePousseEditDataDialog()
                 
                 # =======
                 #   Settings
