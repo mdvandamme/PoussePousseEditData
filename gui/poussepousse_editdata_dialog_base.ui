@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
-    <height>811</height>
+    <width>379</width>
+    <height>827</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,60 +20,11 @@
    <string>PoussePousseEditData</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <widget class="QPushButton" name="btSuiv">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>170</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&gt;&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>140</y>
-      <width>101</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Cellule en cours :</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="currentId">
-    <property name="geometry">
-     <rect>
-      <x>219</x>
-      <y>140</y>
-      <width>61</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btGo">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>139</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Go</string>
-    </property>
-   </widget>
    <widget class="QTableWidget" name="tableCoordFeu">
     <property name="geometry">
      <rect>
       <x>12</x>
-      <y>340</y>
+      <y>310</y>
       <width>241</width>
       <height>181</height>
      </rect>
@@ -96,7 +47,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>340</y>
+      <y>310</y>
       <width>101</width>
       <height>51</height>
      </rect>
@@ -107,96 +58,11 @@
  et le layer</string>
     </property>
    </widget>
-   <widget class="QgsFileWidget" name="fileImportGrille">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>100</y>
-      <width>261</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>111</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Fichier grille:</string>
-    </property>
-   </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>210</y>
-      <width>371</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btPrec">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>170</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;&lt;</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btZoomGrille">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>170</y>
-      <width>101</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Zoom Grille</string>
-    </property>
-   </widget>
-   <widget class="QgsFileWidget" name="fileOuvrirInventaireCSV">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>230</y>
-      <width>251</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>240</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Fichier saisie CSV:</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btViderFichier">
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>400</y>
+      <y>370</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -205,38 +71,12 @@
      <string>! Vider fichier</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btControler">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>7</y>
-      <width>50</width>
-      <height>50</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Saisir les points de contrôle</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>:/plugins/PoussePousseEditData/img/controle.png</normaloff>:/plugins/PoussePousseEditData/img/controle.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>45</width>
-      <height>45</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>320</y>
-      <width>151</width>
+      <y>280</y>
+      <width>191</width>
       <height>16</height>
      </rect>
     </property>
@@ -247,46 +87,59 @@
      </font>
     </property>
     <property name="text">
-     <string>Vue sur le fichier en cours:</string>
+     <string>Vue sur le fichier en cours de saisie:</string>
     </property>
    </widget>
-   <widget class="Line" name="line_3">
+   <widget class="QPushButton" name="btFermer">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>70</y>
-      <width>371</width>
-      <height>20</height>
+      <x>20</x>
+      <y>770</y>
+      <width>111</width>
+      <height>25</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>280</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
+    <property name="toolTip">
+     <string>Fermer le plugin</string>
     </property>
     <property name="text">
-     <string>Contrôle CSV:</string>
+     <string>Fermer</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>:/plugins/PoussePousseEditData/img/close.png</normaloff>:/plugins/PoussePousseEditData/img/close.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
     </property>
    </widget>
-   <widget class="QLineEdit" name="fileControleCSV">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
+   <widget class="QPushButton" name="btControler">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>280</y>
-      <width>251</width>
-      <height>20</height>
+      <x>130</x>
+      <y>770</y>
+      <width>111</width>
+      <height>25</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>Saisir les points de contrôle</string>
+    </property>
+    <property name="text">
+     <string>Contrôler</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>:/plugins/PoussePousseEditData/img/controle.png</normaloff>:/plugins/PoussePousseEditData/img/controle.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="btCheck">
@@ -295,17 +148,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>7</y>
-      <width>50</width>
-      <height>50</height>
+      <x>240</x>
+      <y>770</y>
+      <width>111</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="toolTip">
      <string>Valider</string>
     </property>
     <property name="text">
-     <string/>
+     <string>Valider</string>
     </property>
     <property name="icon">
      <iconset>
@@ -313,283 +166,440 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>40</width>
-      <height>40</height>
+      <width>18</width>
+      <height>18</height>
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="btReload">
+   <widget class="QGroupBox" name="label_grille">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>7</y>
-      <width>50</width>
-      <height>50</height>
+      <x>10</x>
+      <y>9</y>
+      <width>361</width>
+      <height>131</height>
      </rect>
     </property>
-    <property name="toolTip">
-     <string>Revenir à l'acquisition</string>
+    <property name="title">
+     <string>Grille</string>
     </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>:/plugins/PoussePousseEditData/img/reload.png</normaloff>:/plugins/PoussePousseEditData/img/reload.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>40</width>
-      <height>40</height>
-     </size>
-    </property>
+    <widget class="QLabel" name="label_importer">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>61</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Importer:</string>
+     </property>
+    </widget>
+    <widget class="QgsFileWidget" name="fileImportGrille">
+     <property name="geometry">
+      <rect>
+       <x>73</x>
+       <y>21</y>
+       <width>271</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_cell_encours">
+     <property name="geometry">
+      <rect>
+       <x>126</x>
+       <y>61</y>
+       <width>91</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cellule en cours :</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="currentId">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>61</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btGo">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>61</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Go</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btSuiv">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>96</y>
+       <width>111</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&gt;&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btPrec">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>96</y>
+       <width>111</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;&lt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btZoomGrille">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>96</y>
+       <width>101</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zoom Grille</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_8">
+   <widget class="QGroupBox" name="label_fichier">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>663</y>
-      <width>71</width>
-      <height>16</height>
+      <x>10</x>
+      <y>150</y>
+      <width>361</width>
+      <height>121</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Completion:</string>
+    <property name="title">
+     <string>Fichier</string>
     </property>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>32</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Saisie CSV:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>16</x>
+       <y>62</y>
+       <width>91</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Contrôle CSV:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fileControleCSV">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>96</x>
+       <y>63</y>
+       <width>251</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fileValidationCSV">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>96</x>
+       <y>90</y>
+       <width>251</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>91</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Validation CSV:</string>
+     </property>
+    </widget>
+    <widget class="QgsFileWidget" name="fileOuvrirInventaireCSV">
+     <property name="geometry">
+      <rect>
+       <x>96</x>
+       <y>25</y>
+       <width>251</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_9">
+   <widget class="QGroupBox" name="label_qualite">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>682</y>
-      <width>141</width>
-      <height>20</height>
+      <x>10</x>
+      <y>510</y>
+      <width>361</width>
+      <height>241</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Theoretical missing number:</string>
+    <property name="title">
+     <string>Qualité</string>
     </property>
+    <widget class="QLineEdit" name="txtNbCell">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>30</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>30</y>
+       <width>131</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Nombre de cellules tirées:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtNbAcquis">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>50</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>50</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Taille échantillon d'acquisition:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtNbValidation">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>70</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_14">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>71</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Taille échantillon de contrôle:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>100</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Complétion:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtCompletion">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>100</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtMissing">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>120</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>171</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Nb théorique de pts manquants:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtError">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>140</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>59</x>
+       <y>140</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Moyenne des erreurs: </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtRMSE">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>160</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>38</x>
+       <y>160</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Écart quadratique moyen:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtSBE">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>190</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_12">
+     <property name="geometry">
+      <rect>
+       <x>113</x>
+       <y>190</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>biais en X:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtSBN">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>210</y>
+       <width>150</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_13">
+     <property name="geometry">
+      <rect>
+       <x>113</x>
+       <y>210</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>biais en Y:</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>700</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Mean error: </string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_11">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>722</y>
-      <width>151</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Root mean square error:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_12">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>744</y>
-      <width>46</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>X bias:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_13">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>764</y>
-      <width>46</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Y bias:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtCompletion">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>660</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtMissing">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>680</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtError">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>700</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtRMSE">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>720</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtSBN">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>760</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtSBE">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>740</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="Line" name="line_4">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>540</y>
-      <width>371</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="fileValidationCSV">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>560</y>
-      <width>251</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_16">
-    <property name="geometry">
-     <rect>
-      <x>27</x>
-      <y>560</y>
-      <width>81</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Validation CSV:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>24</x>
-      <y>590</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Nombre de cellules tirées:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>35</x>
-      <y>610</y>
-      <width>131</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Acquisition sample size:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_14">
-    <property name="geometry">
-     <rect>
-      <x>41</x>
-      <y>630</y>
-      <width>111</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Validation sample size:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtNbCell">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>590</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtNbAcquis">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>610</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="txtNbValidation">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>630</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
+   <zorder>label_fichier</zorder>
+   <zorder>label_grille</zorder>
+   <zorder>tableCoordFeu</zorder>
+   <zorder>btSynchronize</zorder>
+   <zorder>btViderFichier</zorder>
+   <zorder>btControler</zorder>
+   <zorder>label_6</zorder>
+   <zorder>btCheck</zorder>
+   <zorder>btFermer</zorder>
+   <zorder>label_qualite</zorder>
   </widget>
  </widget>
  <customwidgets>

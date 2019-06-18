@@ -8,5 +8,6 @@
 		<file>img/controle.png</file>
 		<file>img/valider.png</file>
 		<file>img/new.png</file>
+		<file>img/close.png</file>
     </qresource>
 </RCC>

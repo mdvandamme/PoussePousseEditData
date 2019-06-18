@@ -24,6 +24,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtGui import QFont
 
 from qgis.core import QgsMapLayer
 from qgis.core import QgsMapLayerRegistry
@@ -42,12 +43,11 @@ from gui import util_layer
 from gui import util_io
 from gui import util_table
 
-import math
 import os.path
 
 # Tirage des points
 from editdata import sample as tirage
-from editdata import geom as geomalgo
+# from editdata import geom as geomalgo
 from editdata import validation as controle
 from editdata import grille
 
@@ -199,16 +199,23 @@ class ParcoursGrille:
                 QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
 
     
+
+    
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
 
         # disconnects
         self.pluginIsActive = False
 
+        # On recharge pour repartir       
+        self.reload()
+
         # On supprime les layers de la fenêtre        
         self.vider()
 
-
+        # On ferme
+        self.dockwidget.close()
+        
 
     def initPoussePousse(self):
         """Run method that performs all the real work"""
@@ -221,6 +228,45 @@ class ParcoursGrille:
                 
                 self.dockwidget = PoussePousseEditDataDialog()
                 
+                self.dockwidget.label_grille.setStyleSheet('color:#21A6A6;font: 14pt MS Shell Dlg 2')
+                self.dockwidget.label_fichier.setStyleSheet('color:#21A6A6;font: 14pt MS Shell Dlg 2')
+                self.dockwidget.label_qualite.setStyleSheet('color:#21A6A6;font: 14pt MS Shell Dlg 2')
+                    
+                self.dockwidget.label_importer.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.fileImportGrille.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_cell_encours.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.currentId.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.btGo.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.btZoomGrille.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.btPrec.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.btSuiv.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                
+                self.dockwidget.label_2.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_7.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_16.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.fileControleCSV.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.fileValidationCSV.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.fileOuvrirInventaireCSV.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                
+                self.dockwidget.label_4.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_5.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_14.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_8.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_9.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_10.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_11.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_12.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.label_13.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtNbCell.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtNbAcquis.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtNbValidation.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtCompletion.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtMissing.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtError.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtRMSE.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtSBE.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                self.dockwidget.txtSBN.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
+                
                 # On active les boutons avec des evenements click
                 self.dockwidget.btSuiv.clicked.connect(self.doSuivant)
                 self.dockwidget.btGo.clicked.connect(self.goId)
@@ -228,7 +274,8 @@ class ParcoursGrille:
                 self.dockwidget.btZoomGrille.clicked.connect(self.zoomEmprise)
                 self.dockwidget.btViderFichier.clicked.connect(self.raz)
                 self.dockwidget.btControler.clicked.connect(self.controler)
-                self.dockwidget.btReload.clicked.connect(self.reload)
+                # self.dockwidget.btReload.clicked.connect(self.reload)
+                self.dockwidget.btFermer.clicked.connect(self.onClosePlugin)
                 self.dockwidget.btCheck.clicked.connect(self.valider)
                 # self.dockwidget.btVider.clicked.connect(self.vider)
                 
@@ -242,7 +289,7 @@ class ParcoursGrille:
                 self.dockwidget.fileValidationCSV.setText('')
                 
                 self.dockwidget.btCheck.setDisabled(True)
-                self.dockwidget.btReload.setDisabled(True)
+                # self.dockwidget.btReload.setDisabled(True)
                 
                 self.dockwidget.txtNbCell.setDisabled(True)
                 self.dockwidget.txtNbAcquis.setDisabled(True)
@@ -322,7 +369,7 @@ class ParcoursGrille:
             self.dockwidget.btSynchronize.setDisabled(False)
             self.dockwidget.btViderFichier.setDisabled(False)
             self.dockwidget.btCheck.setDisabled(True)
-            self.dockwidget.btReload.setDisabled(True)
+            # self.dockwidget.btReload.setDisabled(True)
             self.dockwidget.btControler.setDisabled(False)
             
         self.iface.mapCanvas().refresh()
@@ -512,6 +559,8 @@ class ParcoursGrille:
         # On recupere l'id en cours
         currId = self.dockwidget.currentId.text()
         
+        print (currId)
+        
         # On cherche l'index de la valeur currId
         newindex = 0
         for i in range(len(self.idList)):
@@ -604,7 +653,7 @@ class ParcoursGrille:
             self.dockwidget.btViderFichier.setDisabled(True)
             self.dockwidget.btCheck.setDisabled(False)
             self.dockwidget.btControler.setDisabled(True)
-            self.dockwidget.btReload.setDisabled(False)
+            # self.dockwidget.btReload.setDisabled(False)
         
             layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
             featuresPointEnvConvexe = layerStopLine.getFeatures()
@@ -780,10 +829,11 @@ class ParcoursGrille:
         self.dockwidget.txtNbAcquis.setText(str(nbXA))
         self.dockwidget.txtNbValidation.setText(str(nbXV))
         
-        self.dockwidget.txtCompletion.setText(str(completion) + ' (+/- ' + str(scompletion) + ') %')
+        text = u'±'
+        self.dockwidget.txtCompletion.setText(str(completion) + ' ' + text + ' ' + str(scompletion) + ' %')
         self.dockwidget.txtMissing.setText('< ' + str(missing))
-        self.dockwidget.txtError.setText(str(error) + ' (+/- ' + str(serror) + ') m')
-        self.dockwidget.txtRMSE.setText(str(rmse) + ' (+/- ' + str(srmse) + ') m')
-        self.dockwidget.txtSBE.setText(str(be) + ' (+/- ' + str(sbe) + ') m')
-        self.dockwidget.txtSBN.setText(str(bn) + ' (+/- ' + str(sbn) + ') m')
+        self.dockwidget.txtError.setText(str(error) + ' ' + text + ' ' + str(serror) + ' m')
+        self.dockwidget.txtRMSE.setText(str(rmse) + ' ' + text + ' ' + str(srmse) + ' m')
+        self.dockwidget.txtSBE.setText(str(be) + ' ' + text + ' ' + str(sbe) + ' m')
+        self.dockwidget.txtSBN.setText(str(bn) + ' ' + text + ' ' + str(sbn) + ' m')
         
