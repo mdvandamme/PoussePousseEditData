@@ -47,6 +47,7 @@ import os.path
 
 # Tirage des points
 from editdata import sample as tirage
+from editdata import geom as geomalgo
 from editdata import validation as controle
 from editdata import grille
 
@@ -181,11 +182,32 @@ class ParcoursGrille:
         # remove layer ?
         
     
+    def vider(self):
+        
+        # ----------------------------------------------------------------------------
+        # supprime les layers
+        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
+        if layerGrille != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerGrille.id()] )
+                
+        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
+        if layerStopLine != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+                
+        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_CONTROLE)
+        if layerStopLine != None:
+                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
+
+    
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
 
         # disconnects
         self.pluginIsActive = False
+
+        # On supprime les layers de la fenêtre        
+        self.vider()
+
 
 
     def initPoussePousse(self):
@@ -199,39 +221,6 @@ class ParcoursGrille:
                 
                 self.dockwidget = PoussePousseEditDataDialog()
                 
-                # =======
-                #   Settings
-                existeFicPoint = False
-                
-                isSettingsExist = os.path.exists(self.uriSettings)
-                if (not isSettingsExist):
-                    # on cree le fichier
-                    util_io.createSettingsFile(self.uriSettings)
-                else:
-                    # On recupere les infos pour initialiser
-                    uriGrille = util_io.getUrlSettings(self.uriSettings, 'grille')
-                    if uriGrille != '':
-                        self.dockwidget.fileImportGrille.setFilePath(uriGrille.strip())
-                        self.importGrille()
-                    uriPtASaisir = util_io.getUrlSettings(self.uriSettings, 'ptASaisir')
-                    if uriPtASaisir != '':
-                        self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
-                        self.importInventaireCSV()
-                        existeFicPoint = True
-                    
-                # On initialise la cellule de démarrage
-                self.dockwidget.currentId.setText("0")
-                
-                if not existeFicPoint:
-                    self.dockwidget.tableCoordFeu.setRowCount(0)
-                    self.dockwidget.tableCoordFeu.setColumnCount(0)
-                
-                # Gestion du tableau
-                self.featureToolAdd.setTable(self.dockwidget.tableCoordFeu)
-                self.featureToolDelete.setTable(self.dockwidget.tableCoordFeu)
-                #
-                # 
-                
                 # On active les boutons avec des evenements click
                 self.dockwidget.btSuiv.clicked.connect(self.doSuivant)
                 self.dockwidget.btGo.clicked.connect(self.goId)
@@ -241,7 +230,7 @@ class ParcoursGrille:
                 self.dockwidget.btControler.clicked.connect(self.controler)
                 self.dockwidget.btReload.clicked.connect(self.reload)
                 self.dockwidget.btCheck.clicked.connect(self.valider)
-                self.dockwidget.btVider.clicked.connect(self.vider)
+                # self.dockwidget.btVider.clicked.connect(self.vider)
                 
                 self.dockwidget.fileImportGrille.fileChanged.connect(self.importGrille)
                 self.dockwidget.fileOuvrirInventaireCSV.fileChanged.connect(self.importInventaireCSV)
@@ -265,6 +254,43 @@ class ParcoursGrille:
                 self.dockwidget.txtSBE.setDisabled(True)
                 self.dockwidget.txtSBN.setDisabled(True)
                 
+                self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+            
+            
+            # =======
+            #   Settings
+            existeFicPoint = False
+                
+            isSettingsExist = os.path.exists(self.uriSettings)
+            if (not isSettingsExist):
+                # on cree le fichier
+                util_io.createSettingsFile(self.uriSettings)
+            else:
+                # On recupere les infos pour initialiser
+                uriGrille = util_io.getUrlSettings(self.uriSettings, 'grille')
+                if uriGrille != '':
+                    self.dockwidget.fileImportGrille.setFilePath(uriGrille.strip())
+                    self.importGrille()
+                uriPtASaisir = util_io.getUrlSettings(self.uriSettings, 'ptASaisir')
+                if uriPtASaisir != '':
+                    self.dockwidget.fileOuvrirInventaireCSV.setFilePath(uriPtASaisir.strip())
+                    self.importInventaireCSV()
+                    existeFicPoint = True
+                    
+            # On initialise la cellule de démarrage
+            self.dockwidget.currentId.setText("0")
+                
+            if not existeFicPoint:
+                self.dockwidget.tableCoordFeu.setRowCount(0)
+                self.dockwidget.tableCoordFeu.setColumnCount(0)
+                
+            # Gestion du tableau
+            self.featureToolAdd.setTable(self.dockwidget.tableCoordFeu)
+            self.featureToolDelete.setTable(self.dockwidget.tableCoordFeu)
+            #
+            # 
+            
+            
         else:
             # On recupere les infos pour initialiser
             uriGrille = util_io.getUrlSettings(self.uriSettings, 'grille')
@@ -298,7 +324,7 @@ class ParcoursGrille:
             self.dockwidget.btCheck.setDisabled(True)
             self.dockwidget.btReload.setDisabled(True)
             self.dockwidget.btControler.setDisabled(False)
-                
+            
         self.iface.mapCanvas().refresh()
                 
         # show the dockwidget
@@ -445,7 +471,6 @@ class ParcoursGrille:
             
         # Nombre de cellule par colonne
         xmax = 0
-        self.r = 0
         cpt = 0
         for feature in layerGrille.getFeatures():
             geom = feature.geometry()
@@ -456,7 +481,6 @@ class ParcoursGrille:
                     break
             else:
                 xmax = geom.boundingBox().xMaximum()
-                self.r = xmax - geom.boundingBox().xMinimum()
             cpt = cpt + 1
         self.nx = cpt
         
@@ -478,7 +502,9 @@ class ParcoursGrille:
         
         xmin = layerGrille.extent().xMinimum()
         ymin = layerGrille.extent().yMinimum()
-        self.g = grille.Grille(self.nx, self.ny, xmin, ymin, self.r, self.r)
+        rx = (layerGrille.extent().xMaximum() - xmin) / self.nx
+        ry = (layerGrille.extent().yMaximum() - ymin) / self.ny
+        self.g = grille.Grille(self.nx, self.ny, xmin, ymin, rx, ry)
         # print (self.g)
     
     def doSuivant(self):
@@ -561,8 +587,9 @@ class ParcoursGrille:
     def controler(self):
         
         # popup
-        # show the dialog
+        # Show the dialog
         self.dlg.show()
+        
         # Run the dialog event loop
         result = self.dlg.exec_()
         
@@ -629,9 +656,8 @@ class ParcoursGrille:
             
             # ====================================================
             # ----------------------------------------------------------
-            r = self.r
             self.N = int(self.dlg.editNbCellTirage.text())
-            #print (nbCell)
+            # print (nbCell)
             
             xmin = layerGrille.extent().xMinimum()
             xmax = layerGrille.extent().xMaximum()
@@ -641,34 +667,44 @@ class ParcoursGrille:
             nx = self.nx
             # print ('nx=' + str(nx))
             ny = self.ny
-            self.Nc = nx * ny
             
             # Mode du tirage
             if self.dlg.radioEmprise.isChecked():
                 tabdonnee = [[xmin,ymin],[xmin,ymax],[xmax,ymax],[xmax,ymin]]
-                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, self.N, tabdonnee)
+                (T, self.Nc) = tirage.sampleInConvexHull(xmin, ymin, nx, ny, self.g.rx, self.N, tabdonnee)
+                # self.Nc = nx * ny
             
             elif self.dlg.radioEnvConvexe.isChecked():
+               
+                # tableau des points saisis
                 tabdonnee = []
                 for feature in featuresPointEnvConvexe:
                     geom = feature.geometry()
                     x = geom.asPoint().x()
                     y = geom.asPoint().y()
-                    tabdonnee.append([x,y])   
-                T = tirage.sampleInConvexHull(xmin, ymin, nx, ny, r, self.N, tabdonnee)
-                # print (T)
-                # TReel = []
-                # for (i,j) in T:
-                    # x = xmin + i * self.r
-                    # y = ymin + j * self.r
-                    # print (x,y)
-                    # TReel.append([x,y])
+                    tabdonnee.append([x,y])
+                
+                # Enveloppe convexe des points saisis
+                (T, self.Nc) = tirage.sampleInConvexHull(xmin, ymin, nx, ny, self.g.rx, self.N, tabdonnee)
+                
+                # 
+                
+#                X = []
+#                Y = []
+#                for (i,j) in T:
+#                    x = xmin + i * self.g.rx
+#                    y = ymin + j * self.g.ry
+#                    # print (x,y)
+#                    X.append(x)
+#                    Y.append(y)
+                #print (X)
                 # aec = tirage.aire_env_convexe(TReel)
-                aec = tirage.aire_env_convexe(tabdonnee)
-                # print (aec)
-                self.Nc = math.floor(aec / (self.r * self.r))
-                # print (self.Nc)
-                self.Nc = int (self.Nc)
+                # aec = geomalgo.aire_env_convexe(tabdonnee)
+#                aec = geomalgo.aire_polygone(X, Y)
+#                print (aec)
+#                self.Nc = math.floor(aec / (self.g.rx * self.g.ry))
+#                print (self.Nc)
+                # self.Nc = int (self.Nc)
                 # print (self.Nc)
             # print (T)
             
@@ -719,22 +755,7 @@ class ParcoursGrille:
         self.iface.mapCanvas().setMapTool(self.featureToolDelete)
 
 
-    def vider(self):
-        
-        # ----------------------------------------------------------------------------
-        # supprime les layers
-        layerGrille = util_layer.getLayer(util_layer.CONST_NOM_LAYER_GRILLE)
-        if layerGrille != None:
-                QgsMapLayerRegistry.instance().removeMapLayers( [layerGrille.id()] )
-                
-        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_SAISIR)
-        if layerStopLine != None:
-                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
-                
-        layerStopLine = util_layer.getLayer(util_layer.CONST_NOM_LAYER_PT_CONTROLE)
-        if layerStopLine != None:
-                QgsMapLayerRegistry.instance().removeMapLayers( [layerStopLine.id()] )
-
+    
 
     def reload(self):
         

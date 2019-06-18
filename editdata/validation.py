@@ -11,7 +11,7 @@ import random
 # 	nx, ny : nombres de cellules en x et y
 #   rx, ry : dimensions des cellules en x et y
 #   C : tableau a 2 dimensions des indices (i,j) des cellules
-#		echantillonnees lors du processus de validation
+#		echantillonnees lors du processus de controle
 #	Nc : nombre de cellules au total dans la zone de tirage 
 #		= nx * ny si tirage uniforme classique
 # 		= floor(aire enveloppe convexe / (rx * ry)) sinon

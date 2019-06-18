@@ -10,10 +10,14 @@ Calcul de l'enveloppe convexe.
 #   - une valeur positive si OAB est orienté dans le sens des aiguilles d'une montre
 #   - une valeur négative si OAB est orienté dans le sens contraire
 #   - 0 si les points sont alignés
+#
 def cross(o, a, b):
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
 
+#
+# Calcul de l'enveloppe.
+#    
 def envconvexe(T):
     
     E = []

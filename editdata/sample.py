@@ -6,39 +6,6 @@ import envconvexe as envconv
 import geom as geom
 
 
-def column(matrix, i):
-    return [row[i] for row in matrix]
-
-	
-
-def aire_polygone(X, Y):
-
-    aire = 0
-
-    X.append(X[0])
-    Y.append(Y[0])
-        
-    n = len(X)
-    
-    for i in range(0, n-1):
-        aire += X[i]*Y[i+1]-X[i+1]*Y[i]
-        
-    aire *= 0.5
-    aire = abs(aire)
-
-    return aire
-
-
-def aire_env_convexe(T):
-    
-    H = envconv.envconvexe(T)
-
-    X = column(H,0)
-    Y = column(H,1)
-
-    a = aire_polygone(X, Y)
-
-    return a
 
 # ---------------------------------------------------
 # Fonction d'echantillonnage d'indices de cellules 
@@ -123,7 +90,7 @@ def sampleInConvexHull(xmin, ymin, nx, ny, r, N, T):
         I = [I[i] for i in range(N)]
 
     
-    return I
+    return (I, len(CELL))
 		
 		
 		

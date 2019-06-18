@@ -5,6 +5,7 @@ Intersection de 2 segments.
 """
 
 import sys
+import envconvexe as envconv
 
 # 
 # Fonction qui retourne vrai si le point q est sur le segment pr
@@ -79,7 +80,8 @@ def doIntersect(p1, q1, p2, q2):
 
 #
 # Retourne vrai si le point p se trouve à l'intérieur du polygon
-# polygon
+#
+# polygon: tableau des coordonnées des sommets
 # n : nombre de sommets du polygone
 # Point p à tester
 def isInside(polygon, n, p):
@@ -123,5 +125,37 @@ def isInside(polygon, n, p):
     return count%2 == 1
 
 
+def column(matrix, i):
+    return [row[i] for row in matrix]
 
+
+def aire_polygone(X, Y):
+
+    aire = 0
+
+    X.append(X[0])
+    Y.append(Y[0])
+        
+    n = len(X)
+    
+    for i in range(0, n-1):
+        aire += X[i]*Y[i+1]-X[i+1]*Y[i]
+        
+    aire *= 0.5
+    aire = abs(aire)
+
+    return aire
+
+
+
+def aire_env_convexe(T):
+    
+    H = envconv.envconvexe(T)
+
+    X = column(H,0)
+    Y = column(H,1)
+
+    a = aire_polygone(X, Y)
+
+    return a
 
