@@ -76,3 +76,13 @@ def charge(uriSL, table):
         f.close()
         
     return table
+
+
+def vide(table):
+
+    table.setRowCount(0)
+    table.setColumnCount(2)
+    colHearder = ['1', '2']
+    table.setHorizontalHeaderLabels(colHearder)
+        
+

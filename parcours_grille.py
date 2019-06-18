@@ -228,9 +228,9 @@ class ParcoursGrille:
                 
                 self.dockwidget = PoussePousseEditDataDialog()
                 
-                self.dockwidget.label_grille.setStyleSheet('color:#21A6A6;font: 14pt MS Shell Dlg 2')
-                self.dockwidget.label_fichier.setStyleSheet('color:#21A6A6;font: 14pt MS Shell Dlg 2')
-                self.dockwidget.label_qualite.setStyleSheet('color:#21A6A6;font: 14pt MS Shell Dlg 2')
+                self.dockwidget.label_grille.setStyleSheet('color:#21A6A6;font: 10pt MS Shell Dlg 2')
+                self.dockwidget.label_fichier.setStyleSheet('color:#21A6A6;font: 10pt MS Shell Dlg 2')
+                self.dockwidget.label_qualite.setStyleSheet('color:#21A6A6;font: 10pt MS Shell Dlg 2')
                     
                 self.dockwidget.label_importer.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
                 self.dockwidget.fileImportGrille.setStyleSheet('color : black;font: 8pt MS Shell Dlg 2')
@@ -363,6 +363,8 @@ class ParcoursGrille:
             self.dockwidget.fileValidationCSV.setDisabled(True)
             self.dockwidget.fileValidationCSV.setText('')
             
+            self.dockwidget.tableCoordFeu.setDisabled(False)
+            
             # On désactive beaucoup d'action
             self.dockwidget.fileImportGrille.setDisabled(False)
             self.dockwidget.fileOuvrirInventaireCSV.setDisabled(False)
@@ -371,6 +373,17 @@ class ParcoursGrille:
             self.dockwidget.btCheck.setDisabled(True)
             # self.dockwidget.btReload.setDisabled(True)
             self.dockwidget.btControler.setDisabled(False)
+            
+            self.dockwidget.txtNbCell.setText('')
+            self.dockwidget.txtNbAcquis.setText('')
+            self.dockwidget.txtNbValidation.setText('')
+            self.dockwidget.txtCompletion.setText('')
+            self.dockwidget.txtMissing.setText('')
+            self.dockwidget.txtError.setText('')
+            self.dockwidget.txtRMSE.setText('')
+            self.dockwidget.txtSBE.setText('')
+            self.dockwidget.txtSBN.setText('')
+        
             
         self.iface.mapCanvas().refresh()
                 
@@ -558,8 +571,7 @@ class ParcoursGrille:
         
         # On recupere l'id en cours
         currId = self.dockwidget.currentId.text()
-        
-        print (currId)
+        # print (currId)
         
         # On cherche l'index de la valeur currId
         newindex = 0
@@ -820,6 +832,8 @@ class ParcoursGrille:
         
         # self.dlg.btNew.setDisabled(True)
         
+        # -----------------------------------------------------------------
+        #    Données de qualité
         uriData = self.dockwidget.fileOuvrirInventaireCSV.filePath().strip()
         uriValid = self.dockwidget.fileControleCSV.text().strip()
         
@@ -836,4 +850,27 @@ class ParcoursGrille:
         self.dockwidget.txtRMSE.setText(str(rmse) + ' ' + text + ' ' + str(srmse) + ' m')
         self.dockwidget.txtSBE.setText(str(be) + ' ' + text + ' ' + str(sbe) + ' m')
         self.dockwidget.txtSBN.setText(str(bn) + ' ' + text + ' ' + str(sbn) + ' m')
+        
+        
+        # -----------------------------------------------------------------
+        # On crée un nouveau fichier
+        #   et on écrit les résultats dans le fichier
+        uriSL = self.dockwidget.fileOuvrirInventaireCSV.filePath()
+        
+        ind = (self.N,self.Nc,nbXA,nbXV,completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn)
+        chemin = util_io.createFicValidation(uriSL, ind)
+            
+        self.dockwidget.fileValidationCSV.setText(chemin)
+            
+        # -----------------------------------------------------------------
+        # Vider le tableau
+        util_table.vide(self.dockwidget.tableCoordFeu)
+        
+        # Désactive les derniers éléments de l'interface graphique
+        self.dockwidget.tableCoordFeu.setDisabled(True)
+        self.dockwidget.btCheck.setDisabled(True)
+        
+        
+        
+        
         

@@ -72,6 +72,38 @@ def createFicControle(uriSL):
     return chemin
 
 
+#
+# indic: (N,Nc,nbXA,nbXV,completion,scompletion,missing,error,serror,rmse,srmse,be,sbe,bn,sbn)
+#
+def createFicValidation(uriSL, indic):
+    
+    head, tail = os.path.split(uriSL)
+    tps = time.strftime("%Y%m%d_%H%M%S")
+    chemin = head + '\\qual_' + tps + '.dat'
+    f = open(chemin, "w+")
+    
+    f.write('--------------------------------------------------------------------------\n')
+    f.write(' Rapport des erreurs de saisie \n')
+    f.write('--------------------------------------------------------------------------\n')
+    f.write(' Date: ' + tps + '\n')
+    f.write('--------------------------------------------------------------------------\n')
+    f.write('Nombre de cellules tirées: ' + str(indic[0]) + " / " + str(indic[1]) + '\n')
+    f.write("Taille de l'échantillon d'acquisition: " + str(indic[2]) + '\n')
+    f.write("Taille de l'échantillon de contrôle: " + str(indic[3]) + '\n')
+    f.write('--------------------------------------------------------------------------\n')
+    f.write('Complétion: ' + str(indic[4]) + ' ± ' + str(indic[5]) + ' % \n')
+    f.write('Nombre théorique de points manquants: < ' + str(indic[6]) + ' \n')
+    f.write('Moyenne des erreurs: ' + str(indic[7]) + ' ± ' + str(indic[8]) + ' m \n')
+    f.write('Écart quadratique moyen: ' + str(indic[9]) + ' ± ' + str(indic[10]) + ' m \n')
+    f.write('--------------------------------------------------------------------------\n')
+    f.write('Biais en X: ' + str(indic[11]) + ' ± ' + str(indic[12]) + ' m \n')
+    f.write('Biais en Y: ' + str(indic[13]) + ' ± ' + str(indic[14]) + ' m \n')
+    f.write('--------------------------------------------------------------------------\n')
+    
+    f.close()
+    
+    return chemin
+    
 
 def createSettingsFile(uriSettings):
     # on cree le fichier
