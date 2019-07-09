@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>455</width>
+    <width>470</width>
     <height>185</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Paramètres de l'échantillonage</string>
+   <string>Contrôle - Paramètres de l'échantillonage</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -50,7 +50,7 @@
     <rect>
      <x>208</x>
      <y>40</y>
-     <width>221</width>
+     <width>241</width>
      <height>20</height>
     </rect>
    </property>
@@ -74,9 +74,9 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>80</y>
-     <width>171</width>
+     <width>201</width>
      <height>20</height>
     </rect>
    </property>

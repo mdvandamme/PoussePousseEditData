@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'valider_dialog_base.ui'
 #
-# Created: Mon May 27 17:44:04 2019
+# Created: Tue Jul 09 09:11:19 2019
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(455, 185)
+        Dialog.resize(470, 185)
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(140, 140, 171, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -37,13 +37,13 @@ class Ui_Dialog(object):
         self.radioEmprise.setChecked(True)
         self.radioEmprise.setObjectName(_fromUtf8("radioEmprise"))
         self.radioEnvConvexe = QtGui.QRadioButton(Dialog)
-        self.radioEnvConvexe.setGeometry(QtCore.QRect(208, 40, 221, 20))
+        self.radioEnvConvexe.setGeometry(QtCore.QRect(208, 40, 241, 20))
         self.radioEnvConvexe.setObjectName(_fromUtf8("radioEnvConvexe"))
         self.label = QtGui.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(87, 20, 171, 16))
         self.label.setObjectName(_fromUtf8("label"))
         self.label_2 = QtGui.QLabel(Dialog)
-        self.label_2.setGeometry(QtCore.QRect(20, 80, 171, 20))
+        self.label_2.setGeometry(QtCore.QRect(10, 80, 201, 20))
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.editNbCellTirage = QtGui.QLineEdit(Dialog)
         self.editNbCellTirage.setGeometry(QtCore.QRect(210, 80, 71, 22))
@@ -55,7 +55,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Paramètres de l\'échantillonage", None))
+        Dialog.setWindowTitle(_translate("Dialog", "Contrôle - Paramètres de l\'échantillonage", None))
         self.radioEmprise.setText(_translate("Dialog", "Emprise", None))
         self.radioEnvConvexe.setText(_translate("Dialog", "Enveloppe convexe des points saisis", None))
         self.label.setText(_translate("Dialog", "Echantilloner dans:", None))

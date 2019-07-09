@@ -150,7 +150,7 @@ class ParcoursGrille:
         icon_path = ':/plugins/PoussePousseEditData/img/add.png'
         action = self.add_action(
             icon_path,
-            text = self.tr(u'Add stop-line.'),
+            text = self.tr(u'Add new point.'),
             callback = self.addStopLine,
             parent = self.iface.mainWindow())
         action.setCheckable(True)
@@ -161,7 +161,7 @@ class ParcoursGrille:
         self.featureToolDelete = FeatureToolDelete(self.iface.mapCanvas())
         action = self.add_action(
             icon_path,
-            text = self.tr(u'Delete stop-line.'),
+            text = self.tr(u'Delete nearest point.'),
             callback = self.deleteStopLine,
             parent = self.iface.mainWindow())
         action.setCheckable(True)
